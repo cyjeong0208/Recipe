@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans:beans xmlns="http://www.springframework.org/schema/mvc"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:beans="http://www.springframework.org/schema/beans"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:security="http://www.springframework.org/schema/security"
+	xsi:schemaLocation="http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security.xsd
+		http://www.springframework.org/schema/mvc https://www.springframework.org/schema/mvc/spring-mvc.xsd
+		http://www.springframework.org/schema/beans https://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context https://www.springframework.org/schema/context/spring-context.xsd">
+<!-- 스프링시큐리티의 네임스페이스가 추가될 때 5.0버전으로 추가되는 것은 4.2버전으로 낮추거나 버전정보를 지워야 에러가 없이 작동 -->
+
+	<!-- DispatcherServlet Context: defines this servlet's request-processing infrastructure -->
+	
+	<!-- Enables the Spring MVC @Controller programming model -->
+	<annotation-driven />
+
+	<!-- Handles HTTP GET requests for /resources/** by efficiently serving up static resources in the ${webappRoot}/resources directory -->
+	<resources mapping="/**" location="/" />
+
+	<!-- Resolves views selected for rendering by @Controllers to .jsp resources in the /WEB-INF/views directory -->
+	<beans:bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+		<beans:property name="prefix" value="/" />
+		<beans:property name="suffix" value=".jsp" />
+	</beans:bean>
+	
+	
+	<!-- 이메일 인증  -->
+	<!-- Mail 인증 관련 -->
+	
+	<!-- <beans:bean id="javaMailSender" class="org.springframework.mail.javamail.JavaMailSenderImpl">
+		<beans:property name="host" value="smtp.gmail.com" />
+		<beans:property name="port" value="587" />
+		<beans:property name="username" value="cyjeong0208@gmail.com" />
+		<beans:property name="password" value="c1y2j34983" />
+		<beans:property name="defaultEncoding" value="utf-8"></beans:property>
+		<beans:property name="javaMailProperties">
+			<beans:props>
+				<beans:prop key="mail.transport.protocol">smtp.gmail.com</beans:prop>
+				<beans:prop key="mail.smtp.auth">true</beans:prop>
+				<beans:prop key="mail.smtp.starttls.enable">true</beans:prop>
+				<beans:prop key="mail.debug">true</beans:prop>
+			</beans:props>
+		</beans:property>
+	</beans:bean> 
+	<beans:bean id="mailService" class="com.solrecipe.recipe.user.email.service.MailServiceImpl">
+		<beans:property name="javaMailSender" ref="javaMailSender"></beans:property>
+	</beans:bean>   -->
+	
+	<!-- 이메일 -->
+	<!-- <beans:bean class="com.solrecipe.recipe.user.email.controller.MailController">
+		<beans:property name="mailService" ref="mailService"/>
+	</beans:bean> --> 
+	
+	<context:component-scan base-package="com.solrecipe.recipe" />
+	
+	<security:global-method-security pre-post-annotations="enabled" secured-annotations="enabled"/>
+	
+	
+</beans:beans>

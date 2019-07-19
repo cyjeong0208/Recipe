@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans:beans xmlns:beans="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:util="http://www.springframework.org/schema/util"
+	xmlns:security="http://www.springframework.org/schema/security"
+	xsi:schemaLocation="http://www.springframework.org/schema/security 
+		http://www.springframework.org/schema/security/spring-security.xsd
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">
+<!-- 5.0부터는 버그가잇음.... 이렇게 사용 -->
+	<beans:bean id = "customAccessDenied" class = "com.solrecipe.recipe.user.security.CustomAccessDeniedHandler"></beans:bean>
+	<!--<beans:bean id = "customLoginSuccess" class = "travel.your.security.CustomLoginSuccessHandler"></beans:bean>
+    <beans:bean id = "customPasswordEncoder" class = "travel.your.security.CustomNoOpPasswordEncoder"></beans:bean>-->
+	<!-- BcryptPasswordEncoder -->
+	<beans:bean id = "bcryptPasswordEncoder" class = "org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder"></beans:bean>
+	<beans:bean id = "customUserDetailsService" class = "com.solrecipe.recipe.user.security.CustomUserDetailsService"></beans:bean>
+	
+	<!-- <beans:bean class="com.solrecipe.recipe.user.email.controller.MailController">
+		<beans:property name="mailService" ref="mailService"/>
+	</beans:bean>
+	<beans:bean id="mailService" class="com.solrecipe.recipe.user.email.service.MailServiceImpl">
+		<beans:property name="javaMailSender" ref="javaMailSender"></beans:property>
+	</beans:bean>   -->
+	
+	<security:http>
+
+       
+		<!-- 특정한 URI에 접근할 때 인터셉터를 이용해서 접근을 제한하는 설정 -->
+		<!-- patterun : URI의 패턴 / access : 권한을 체크 -->
+		<!--<security:intercept-url pattern = "/**" access="permitAll"/>-->
+		<security:intercept-url pattern = "/main" access="permitAll"/>
+		<security:intercept-url pattern = "/admin/admin_index" access="hasRole('ROLE_ADMIN')"/>
+		<!--<security:access-denied-handler error-page="/accessError"/>-->
+		
+		<security:access-denied-handler ref="customAccessDenied"/>
+		 <!--     
+                로그인 폼
+                login-page                                :    로그인 폼 페이지
+                login-processing-url                      :    로그인 폼 페이지에서 post로 보내는 url
+                always-use-default-target="true"일 경우    :    write.do -> login.do -> list.do
+                always-use-default-target="false"일 경우   :    write.do -> login.do -> write.do
+                default-target-url                        :    인증이 성공하면 redirect로 보내는 url        
+                authentication-failure-url                :    로그인 폼 페이지에서 실패할때 보내는 url
+                username-parameter                        :    로그인 폼 파라미터 (아이디)
+                password-parameter                        :    로그인 폼 파라미터 (비밀번호)
+         -->
+		<security:form-login login-page="/customLogin" default-target-url="/main"/>
+		
+        <!-- spring security는 기본적으로 로그인 후 처리를 SavedRequestAwareAuthenticationSuccessHandler라는 클래스를 이용 
+        	SavedRequestAwareAuthenticationSuccessHandler : 사용자가 원래 보려고 했던 페이지의 정보를 유지해서 로그인 후에 다시 원했던 페이지로 이동하는 방식
+        												  : authentication-success-handler-ref속성이나 success Handler()메서드를 삭제하고 관련 스프링 빈의 설정도 사용 안함
+         -->
+		<!-- <security:form-login/>-->
+		<!--<security:form-login login-page = "/customLogin" authentication-success-handler-ref="customLoginSuccess"/>-->
+		
+		<security:logout logout-url = "/customLogout" invalidate-session="true" logout-success-url="/main"/>
+		
+		<!-- token-validity-seconds = "604800"  : 유효시간 -->
+		<security:remember-me data-source-ref="dataSource" token-validity-seconds = "604800"/> 
+		<!-- 자동로그인 하는 경우에 쿠키삭제 -->
+		<security:logout logout-url = "/customLogout" invalidate-session="true" delete-cookies="remember-me, JSESSION_ID"/>
+		
+	</security:http>
+	
+	<!-- 5버전부터는 반드시 PasswordEncoder라는 존재를 이용하도록 변경되었음 -->
+	<!-- 패스워드의 인코딩 처리없이 사용하고 싶다면 패스워드앞에 '{noop} 문자열 추가 -->
+	<security:authentication-manager>
+		<security:authentication-provider user-service-ref="customUserDetailsService">
+			<!-- 테이블구조를 이용하는 경우에는 인증을 하는데 필요한 쿼리(users-by-username-query)와
+			 권한을 확인하는데 필요한 쿼리(authorities-by-username-query) 이용 -->
+			<!-- <security:jdbc-user-service data-source-ref="dataSource" 
+			users-by-username-query="select userid, userpw, enabled from tbl_member where userid = ?"
+			authorities-by-username-query="select userid, auth from tbl_member_auth where userid = ?"/>-->
+			
+			<!-- <security:jdbc-user-service data-source-ref="dataSource"/>
+			<security:password-encoder ref="bcryptPasswordEncoder"/>-->
+			
+			<security:password-encoder ref="bcryptPasswordEncoder"/>
+			<!-- <security:password-encoder ref="customPasswordEncoder"/>
+			<security:user-service>
+				admin은 두개의 권한을 가지고 있어 두개 다 접근 가능
+				<security:user name = "admin90" password="{noop}pw90" authorities="ROLE_MEMBER, ROLE_ADMIN"/>
+			</security:user-service>-->
+		</security:authentication-provider>
+	</security:authentication-manager>
+
+	
+</beans:beans>
