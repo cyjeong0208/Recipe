@@ -20,22 +20,22 @@
 <meta name="viewport"
 	content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
-<link rel="stylesheet" href="/resources/css/bootstrap.min.css">
-<link rel="stylesheet" href="/resources/css/magnific-popup.css">
-<link rel="stylesheet" href="/resources/css/jquery-ui.css">
-<link rel="stylesheet" href="/resources/css/owl.carousel.min.css">
-<link rel="stylesheet" href="/resources/css/owl.theme.default.min.css">
+<link rel="stylesheet" href="resources/css/bootstrap.min.css">
+<link rel="stylesheet" href="resources/css/magnific-popup.css">
+<link rel="stylesheet" href="resources/css/jquery-ui.css">
+<link rel="stylesheet" href="resources/css/owl.carousel.min.css">
+<link rel="stylesheet" href="resources/css/owl.theme.default.min.css">
 
-<link rel="stylesheet" href="/resources/css/bootstrap-datepicker.css">
+<link rel="stylesheet" href="resources/css/bootstrap-datepicker.css">
 
-<link rel="stylesheet" href="/resources/css/aos.css">
+<link rel="stylesheet" href="resources/css/aos.css">
 
-<link rel="stylesheet" href="/resources/css/style.css">
+<link rel="stylesheet" href="resources/css/style.css">
 <!-- MetisMenu CSS -->
-<link href="/resources/css/metisMenu.min.css" rel="stylesheet">
+<link href="resources/css/metisMenu.min.css" rel="stylesheet">
 
 <!-- Custom CSS -->
-<link href="/resources/css/sb-admin-2.css" rel="stylesheet">
+<link href="resources/css/sb-admin-2.css" rel="stylesheet">
 
 <link href="https://fonts.googleapis.com/css?family=Jua&display=swap"
 	rel="stylesheet">
@@ -136,6 +136,7 @@ body {
 	padding: 2%;
 	border: 1px solid #888;
 	width: 50%; /* Could be more or less, depending on screen size */
+	height: auto;
 }@media (max-width:500px){
 	.modal-content{
 		margin: 2% 5%; /* 15% from the top and centered */
@@ -268,7 +269,7 @@ body {
 	overflow: hidden;
 }
 
-label, #menu{
+label#menu_label, #menu{
 	display:none;
 }
 
@@ -282,7 +283,7 @@ label, #menu{
 	ul>li{
 		display:block;
 	}
-	label{
+	label#menu_label{
 		display:block;
 	}
 	
@@ -304,23 +305,24 @@ label, #menu{
 </head>
 <body data-spy="scroll" data-target=".site-navbar-target" data-offset="300">
   
-  <script src="/resources/js/jquery-3.3.1.min.js"></script>
-  <script src="/resources/js/jquery-ui.js"></script>
-  <script src="/resources/js/popper.min.js"></script>
-  <script src="/resources/js/bootstrap.min.js"></script>
-  <script src="/resources/js/owl.carousel.min.js"></script>
-  <script src="/resources/js/jquery.magnific-popup.min.js"></script>
-  <script src="/resources/js/jquery.sticky.js"></script>
-  <script src="/resources/js/jquery.waypoints.min.js"></script>
-  <script src="/resources/js/jquery.animateNumber.min.js"></script>
-  <script src="/resources/js/aos.js"></script>
+  <script src="resources/js/jquery-3.3.1.min.js"></script>
+  <script src="resources/js/jquery-ui.js"></script>
+  <script src="resources/js/popper.min.js"></script>
+  <script src="resources/js/bootstrap.min.js"></script>
+  <script src="resources/js/owl.carousel.min.js"></script>
+  <script src="resources/js/jquery.magnific-popup.min.js"></script>
+  <script src="resources/js/jquery.sticky.js"></script>
+  <script src="resources/js/jquery.waypoints.min.js"></script>
+  <script src="resources/js/jquery.animateNumber.min.js"></script>
+  <script src="resources/js/jquery.cookie.js"></script>
+  <script src="resources/js/aos.js"></script>
 
-  <script src="/resources/js/main.js"></script>
+  <script src="resources/js/main.js"></script>
   <!-- Metis Menu Plugin JavaScript -->
-	<script src="/resources/js/metisMenu.min.js"></script>
+	<script src="resources/js/metisMenu.min.js"></script>
 
 	<!-- Custom Theme JavaScript -->
-	<script src="/resources/js/sb-admin-2.js"></script>
+	<script src="resources/js/sb-admin-2.js"></script>
   <script>
   $(document).ready(function(){
 		var searchLabel = $(".text-center form#searchText label").remove().text();
@@ -383,7 +385,7 @@ label, #menu{
 			
 			<!-- main 메뉴 아이콘  -->            
               <nav class="site-navigation text-center ml-auto" role="navigation">
-				<label for="menu" onclick>
+				<label for="menu" id="menu_label">
 				 <img src="img/header/menu.png" style="width:25%">
 				</label>
 				<input type="checkbox"id="menu">
@@ -397,24 +399,50 @@ label, #menu{
                   <li><a href="#salething-section" id="sale_link" class="nav-link"><img src="img/header/salething.png" height="40px"/></a></li>
                   <li><a href="chat/change_chat.jsp" id="chat_link" class="nav-link"><img src="img/header/chat.png" height="40px"/></a></li>
                   
+                  
+					
+
                   <!-- 로그인 시   -->
 					<sec:authorize access="isAuthenticated()">
-						<li>
-							<a href="myPage/myPage_index.jsp"class="nav-link" id="username" style="border:none; color:#65737e; background:none">
-								<sec:authentication property="principal.username"/>
-							</a>
-						</li>
-                  		<li>
-							<form action = "/customLogout" method = "post">   
-								<input type = "hidden" name = "${_csrf.parameterName }" value = "${_csrf.token }"/>               		
-                  				<button class="nav-link" id="logout" style="border:none; color:#65737e; background:none">로그아웃</button>
-                  			</form>
-                  		</li>
+					
 						
+						<!-- 관리자시...  -->                  
+                   		<sec:authorize access="hasRole('ROLE_ADMIN')">
+							<li>
+								<a href="admin/admin_index.jsp"class="nav-link" id="nickname" style="border:none; color:#65737e; background:none"> 
+									<sec:authentication property="principal.member.user_nickname"/> 
+									
+								</a>
+							</li>
+	                  		<li>
+								<form action = "/customLogout" method = "post">   
+									<input type = "hidden" name = "${_csrf.parameterName }" value = "${_csrf.token }"/>               		
+	                  				<button class="nav-link" id="logout" style="border:none; color:#65737e; background:none">로그아웃</button>
+	                  			</form>
+	                  		</li>
+						</sec:authorize> 
+						
+						<!-- 일반 user -->
+						<sec:authorize access="!hasRole('ROLE_ADMIN')">
+							<li>
+								<a href="myPage/myPage_index.jsp"class="nav-link" id="nickname" style="border:none; color:#65737e; background:none">
+									<sec:authentication property="principal.member.user_nickname"/>
+									
+								</a>
+							</li>
+	                  		<li>
+								<form action = "/customLogout" method = "post">   
+									<input type = "hidden" name = "${_csrf.parameterName }" value = "${_csrf.token }"/>               		
+	                  				<button class="nav-link" id="logout" style="border:none; color:#65737e; background:none">로그아웃</button>
+	                  			</form>
+	                  		</li>
+						</sec:authorize>
 					</sec:authorize>
 					
 					<!-- 비로그인 시  -->
 					<sec:authorize access="isAnonymous()">
+						
+						
 						<li><button class="nav-link" id="login" style="border:none; color:#65737e; background:none">로그인</button></li>
                   		<li><button class="nav-link" id="signup" style="border:none; color:#65737e; background:none">회원가입</button></li>
                 
@@ -710,7 +738,7 @@ label, #menu{
     </div>
     
     
-	<jsp:include page = "/headNfoot/footer.jsp"/> 
+	<jsp:include page = "headNfoot/footer.jsp"/> 
 	
 <script>
 var modal = document.getElementById('loginModal');
@@ -762,13 +790,6 @@ $("#login_button").on("click", function(e){
 });
 
 
-//이메일 인증버튼 
-/* $("#email_btn").on("click", function(e){
-
-	e.preventDefault();
-	$("#sendMail_form").submit();
-}); */
-
 //로그인 페이지에 있는 회원가입 버튼 - 이메일 인증 페이지로 이동
 $("#sign_up_btn").on("click", function(e){
 
@@ -777,12 +798,94 @@ $("#sign_up_btn").on("click", function(e){
 	modal_email.style.display = "block";
 });
 
+/* //회원가입 페이지에서 이메일 인증 페이지로 이동
+$("#move_email").on("click", function(e){
+
+	modal_sign_up.style.display = "none";
+	
+	modal_email.style.display = "block";
+}); */
+
+
+
 //이메일 인증 페이지에 있는 다음 버튼 - 회원가입이지로 이동 
 $("#signup_btn").on("click", function(e){
+	var cnt =0;
+	$.ajax({
+             type: "get",
+             url: "/mail/move?",
+             contentType:'application/json; charset=UTF-8',
+             dataType:'json',
+            
+             success: function(data) {
+            	 console.log(data);
+            	 //map
+            	 $.each(data, function(idx, val) {
+            		 //list
+            		 //$('#user_username').val(idx);
+            		
+            		 $.each(val, function(val1, val2) {
+                		 
+            			//val1 : index
+            			//val2 : value
+            			console.log(idx);
+            			console.log("val1" + val1); 
+            			console.log("val2" + val2); // val1:1 = > 인증번호 체크  1 : ok // val1:0 => email 중복확인   0 : ok
+            	
+            			
+            			//email 중복....
+            			if(val1 == 0){
+            				if(val2 != 0){
+								
+                				$("#email").css("background-color", "#FFA19D");
+                				console.log("return1 : " + val2);
+                				
+                				
+    							return false;
+            				}
+            				console.log("cnt : " + cnt);
+            				cnt++;
+            			}
+            			//임시코드 일치하지 않음.... 
+            			else if(val1 == 1){
+            				if(val2 != 1){
+            					$("#joinCode").css("background-color", "#FFA19D");
+                				console.log("return2 : " + val2);
+                				
+                				return false;
+                			}
+            				console.log("cnt : " + cnt);
+            				cnt++
+            			}
+            			if(cnt == 2){
+            				console.log("return3 : " + val1 + ", " + val2);
+            				console.log("cnt : " + cnt);
+            				
+            				$('#user_username').val(idx);
+            				
+            				modal_email.style.display = "none";
+            				modal_sign_up.style.display = "block";
+            				
+            				//return false;
+            			}
+        
+            			
 
-	modal_email.style.display = "none";
-	modal_sign_up.style.display = "block";
+
+            		
+            		 }); 
+            		 
+            	});
+            	 
+             }, error: function() {
+                 alert('ajax err');
+             }
+         });
+	/* modal_email.style.display = "none";
+	modal_sign_up.style.display = "block"; */
+    
 });
+
 
 
 $('#recipe_link').tooltip({title:"레시피",placement:"bottom"});

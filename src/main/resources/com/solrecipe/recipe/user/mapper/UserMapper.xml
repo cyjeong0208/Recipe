@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace = "com.solrecipe.recipe.user.mapper.UserMapper">
+	<resultMap type = "com.solrecipe.recipe.user.domain.MemberVO" id="memberMap">
+		<id property="user_username" column="user_username"/>
+		<result property="user_num" column="user_num"/>
+		<result property="user_username" column="user_username"/>
+		<result property="user_pw" column="user_pw"/>
+		<result property="user_name" column="user_name"/>
+		<result property="user_nickname" column="user_nickname"/>
+		<result property="user_intro" column="user_intro"/>
+		<result property="user_img" column="user_img"/>
+		<result property="firstdate" column="firstdate"/>
+		<result property="updatedate" column="updatedate"/>
+		<collection property="authList" resultMap="authMap">
+		</collection>
+	</resultMap>
+	<resultMap type="com.solrecipe.recipe.user.domain.AuthVO" id="authMap">
+		<result property="user_username" column="user_username"/>
+		<result property="user_auth" column="user_auth"/>
+	</resultMap>
+	
+	<select id = "read" resultMap="memberMap">
+				<!-- SELECT 
+			userid, userpw, username, enabled, regdate, updatedate
+		FROM 
+			tbl_member
+		WHERE userid = #{userid}		 -->
+		<!-- SELECT 
+			user_id, user_password, mem.user_username, user_email, user_nickname, enabled, user_auth
+		FROM 
+			user_tb mem LEFT OUTER JOIN user_auth_tb auth on mem.user_username=auth.user_username
+		WHERE mem.user_username = #{user_username} -->
+		SELECT 
+			mem.user_num, mem.user_username, user_pw, user_nickname, enabled, user_auth
+		FROM 
+			user_tb mem LEFT OUTER JOIN user_auth_tb auth on mem.user_username=auth.user_username
+						LEFT OUTER JOIN user_detail_tb det on mem.user_num=det.user_num 
+		WHERE mem.user_username = #{user_username}
+	</select>
+	
+	
+	<!-- email check 용으로 이메일만 저장하기위해 비밀번호를 1으로 저장 -->
+	<insert id="insertMail"  parameterType="com.solrecipe.recipe.user.domain.MemberVO" >
+	
+	  <selectKey keyProperty="user_num" resultType="int" order="BEFORE">
+	    select NVL(MAX(user_num+1),1) FROM user_tb
+	  </selectKey>
+	 
+		INSERT INTO user_tb (user_num, user_username, user_pw) VALUES (#{user_num}, #{user_username}, 1)
+	</insert>
+	
+	
+	<update id="updatePW">
+		update user_tb set user_pw=#{user_pw}	
+				 where user_username=#{user_username}
+	</update>
+	
+	<insert id="insertMember" parameterType="com.solrecipe.recipe.user.domain.MemberVO">
+		<selectKey keyProperty="user_num" resultType="int" order="BEFORE">
+	    	select user_num FROM user_tb WHERE user_username = #{user_username}
+	  	</selectKey>
+	
+		INSERT INTO user_detail_tb (user_num, user_name, user_nickname, firstdate, updatedate) 
+			VALUES (#{user_num}, #{user_name}, #{user_nickname}, #{firstdate}, #{updatedate})
+	</insert>
+	
+	<insert id="insertAuth" parameterType="com.solrecipe.recipe.user.domain.AuthVO">
+		<!-- <selectKey keyProperty="user_username" resultType="String" order="BEFORE">
+	    	select user_num FROM user_tb WHERE user_username = #{user_username}
+	  	</selectKey> -->
+	
+		INSERT INTO user_auth_tb (user_username, user_auth) 
+			VALUES (#{user_username}, #{user_auth})
+	</insert>
+	<select id="confirmUser" parameterType="String" resultType="int">
+		select count(*) from user_tb where user_username=#{user_username}
+	</select>
+</mapper>

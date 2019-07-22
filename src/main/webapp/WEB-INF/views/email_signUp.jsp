@@ -7,7 +7,11 @@
 	<meta charset="UTF-8">
 <meta name="viewport"
 	content="width=device-width, initial-scale=1, shrink-to-fit=no">
-
+<style>
+	input.form-control{
+		background-color: rgb(232, 240, 254);
+	}
+</style>
 </head>
 <body>
      
@@ -20,14 +24,14 @@
 					<form method = "post" id="sendMail_form" name="sendMail_form" target="param"><!-- action="/mail/send" -->
 					<fieldset>
 						<div class="form-group">
-							<label for="email">Email</label> <input type="email" aria-descibedby="emailHelp"
+							<label for="email">Email</label> <input type="email" 
 								class="form-control" id="email" name = "email" placeholder="Email을 입력하세요..." autofocus>
 							<input type="button" id="send_btn" class="btn btn-success btn-block" value = "전  송" onclick = "send('send');">
 							
 						</div>
 						
 						<div class="form-group">
-							<label for="email">인증번호</label> <input type="text"
+							<label for="joinCode">인증번호</label> <input type="text"
 								class="form-control" id="joinCode" name = "joinCode" placeholder="인증번호를 입력하세요..." autofocus>
 							<input type="button" id="check_btn" class="btn btn-success btn-block" value="확인" onclick="send('check');">
 						</div>
@@ -38,9 +42,8 @@
 						</fieldset>
 				
                			
-						<button type="submit" class="btn btn-success btn-block" id="signup_btn">
-							 다  음
-						</button>	
+						<input type="button" class="btn btn-success btn-block" id="signup_btn" value="다음" >
+						
 						<input type="hidden" name="${_csrf.parameterName}" value="${_csrf.token}"/>
 					</form>
 				</div>
@@ -52,7 +55,7 @@
 	
       </div>          
            <!-- iframe 설정 -->
-    <iframe id="hidden" name="param"></iframe>
+    <iframe  name="param" style="visibility:hidden; height:1px;"></iframe>
 
     <!-- end of modal -->
  <script>
@@ -60,36 +63,18 @@
  function send(val){
 	 var email_form = document.sendMail_form;
 	
-	/*  $.ajax({
-		 url:'/mail/send',
-		 type: 'get',
-		 contentType:'application/json; charset=UTF-8',
-		 dataType:'json',
-		 beforeSend:function(xhr){
-			  */
+
 			 if(val == "send"){
 				 var send_btn = document.getElementById("send_btn");
-				 send_btn.disabled = 'disabled';
+				 /* send_btn.disabled = 'disabled'; */
 				 email_form.action = "/mail/send";
 			 }else if(val == "check"){
 				 var check_btn = document.getElementById("check_btn");
-				 check_btn.disabled = 'disabled';
+				 /* check_btn.disabled = 'disabled'; */
 				 email_form.action = "/mail/check";
 			 }
 			 email_form.submit();
-			
-			 /*},
-		 success:function(data){
-			 alert(data);
-		 },
-		 error:function(request, status, error){
-			 if (request.status != '0') {
-			     alert("code : " + request.status + "\r\nmessage : "
-			       + request.reponseText + "\r\nerror : " + error);
-			    }
-	
-		 }
-	 });  */
+		
  }
 
  

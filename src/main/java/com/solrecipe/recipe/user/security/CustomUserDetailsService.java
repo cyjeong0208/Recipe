@@ -9,7 +9,7 @@ import lombok.Setter;
 import lombok.extern.log4j.Log4j;
 
 import com.solrecipe.recipe.user.domain.MemberVO;
-import com.solrecipe.recipe.user.mapper.MemberMapper;
+import com.solrecipe.recipe.user.mapper.UserMapper;
 import com.solrecipe.recipe.user.security.domain.CustomUser;
 
 
@@ -17,7 +17,7 @@ import com.solrecipe.recipe.user.security.domain.CustomUser;
 public class CustomUserDetailsService implements UserDetailsService{
 
 	@Setter(onMethod_ = {@Autowired})
-	private MemberMapper memberMapper;
+	private UserMapper memberMapper;
 	
 	@Override
 	public UserDetails loadUserByUsername(String username)throws UsernameNotFoundException{

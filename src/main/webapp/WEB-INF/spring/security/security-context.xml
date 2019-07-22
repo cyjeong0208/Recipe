@@ -30,7 +30,7 @@
 		<!-- patterun : URI의 패턴 / access : 권한을 체크 -->
 		<!--<security:intercept-url pattern = "/**" access="permitAll"/>-->
 		<security:intercept-url pattern = "/main" access="permitAll"/>
-		<security:intercept-url pattern = "/admin/admin_index" access="hasRole('ROLE_ADMIN')"/>
+		<security:intercept-url pattern = "/admin/**" access="hasRole('ROLE_ADMIN')"/>
 		<!--<security:access-denied-handler error-page="/accessError"/>-->
 		
 		<security:access-denied-handler ref="customAccessDenied"/>
@@ -85,5 +85,6 @@
 		</security:authentication-provider>
 	</security:authentication-manager>
 
+	
 	
 </beans:beans>
