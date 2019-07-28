@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace = "com.solrecipe.recipe.recipegram.mapper.RecipegramMapper">
+	<resultMap type = "com.solrecipe.recipe.recipegram.domain.RecipegramVO" id="recipegramMap">
+		<id property="recipegram_num" column="recipegram_num"/>
+		<result property="recipegram_num" column="recipegram_num"/>
+		<result property="user_nickname" column="user_nickname" />
+		<result property="user_num" column="user_num"/>
+		<result property="recipegram_content" column="recipegram_content"/>
+		<result property="recipegram_like_cnt" column="recipegram_like_cnt"/>
+		<result property="recipegram_secret" column="recipegram_secret"/>
+		<result property="firstdate" column="firstdate"/>
+		<result property="updatedate" column="updatedate"/>
+		<collection property="imgList" resultMap="imgMap">
+		</collection>
+		<collection property="hashList" resultMap="hashMap">
+		</collection>
+		<collection property="replyList" resultMap="replyMap">
+		</collection>
+	</resultMap>
+	<resultMap type="com.solrecipe.recipe.recipegram.domain.ImgVO" id="imgMap">
+		<result property="img_num" column="img_num"/>
+		<result property="img_name" column="img_name"/>
+		<result property="recipegram_num" column="recipegram_num"/>
+	</resultMap>
+	<resultMap type="com.solrecipe.recipe.recipegram.domain.HashVO" id="hashMap">
+		<result property="hash_num" column="hash_num"/>
+		<result property="hash_name" column="hash_name"/>
+	</resultMap>
+	<resultMap type = "com.solrecipe.recipe.recipegram.domain.ReplyVO" id="replyMap">
+		<result property="recipegram_reply_num" column="recipegram_reply_num"/>
+		<result property="user_nickname" column="user_nickname" />
+		<result property="recipegram_reply_content" column="recipegram_reply_content"/>
+		<result property="firstdate" column="firstdate"/>
+		<result property="updatedate" column="updatedate"/>
+		<collection property="rereplyList" resultMap="rereplyMap">
+		</collection>
+	</resultMap>
+	<resultMap type = "com.solrecipe.recipe.recipegram.domain.RereplyVO" id="rereplyMap">
+		<result property="recipegram_rereply_num" column="recipegram_rereply_num"/>
+		<result property="user_nickname" column="user_nickname" />
+		<result property="recipegram_rereply_content" column="recipegram_rereply_content"/>
+		<result property="firstdate" column="firstdate"/>
+		<result property="updatedate" column="updatedate"/>
+	</resultMap>
+	
+	<insert id="insertRecipegram"  parameterType="com.solrecipe.recipe.recipegram.domain.RecipegramVO">
+	
+	  <selectKey keyProperty="recipegram_num" resultType="int" order="BEFORE">
+	    select NVL(MAX(recipegram_num+1),1) FROM recipegram_tb
+	  </selectKey>
+	 
+		INSERT INTO recipegram_tb (recipegram_num, user_num, recipegram_content, firstdate, updatedate, recipegram_secret) 
+			VALUES (#{recipegram_num}, #{user_num}, #{recipegram_content}, #{firstdate}, #{updatedate}, #{recipegram_secret})
+	</insert>
+	
+	<insert id="insertRecipegram_img"  parameterType="com.solrecipe.recipe.recipegram.domain.ImgVO" >
+	
+	  <selectKey keyProperty="img_num" resultType="int" order="BEFORE">
+	    select NVL(MAX(img_num+1),1) FROM img_tb
+	  </selectKey>
+	 	
+		INSERT INTO img_tb (img_num, img_name, recipegram_num) 
+			
+			VALUES  
+			
+			(#{img_num}, #{img_name}, #{recipegram_num})
+			
+	</insert>
+	
+	<insert id="insertRecipegram_hash"   parameterType="com.solrecipe.recipe.recipegram.domain.HashVO"  >
+	
+	  <selectKey keyProperty="hash_num" resultType="int" order="BEFORE">
+	    select NVL(MAX(hash_num+1),1) FROM hash_tb
+	  </selectKey>
+	 
+		INSERT INTO hash_tb (hash_num, hash_name, recipegram_num)
+		 
+			VALUES 
+			
+			(#{hash_num}, #{hash_name}, #{recipegram_num})
+			
+	</insert>
+	
+	<select id="recipegramList" resultMap="recipegramMap">
+		SELECT                                                                                   
+			rg.recipegram_num, mem.user_num, det.user_nickname, recipegram_content, recipegram_like_cnt, rg.firstdate, rg.updatedate, recipegram_secret, img_num, img_name
+		FROM 
+			recipegram_tb rg LEFT OUTER JOIN user_tb mem on mem.user_num=rg.user_num
+						LEFT OUTER JOIN img_tb img on rg.recipegram_num=img.recipegram_num 
+                        LEFT OUTER JOIN user_detail_tb det on det.user_num=rg.user_num
+		WHERE rg.recipegram_num = 1;
+	</select>
+
+	<select id="getRecipegramList" resultMap="recipegramMap">
+	<![CDATA[
+		SELECT
+			recipegram_num, user_num, user_nickname, recipegram_content, recipegram_like_cnt, firstdate, updatedate, recipegram_secret, img_num, img_name
+		FROM (
+			SELECT
+				rg.recipegram_num, rg.user_num, det.user_nickname, recipegram_content, recipegram_like_cnt, rg.firstdate, rg.updatedate, recipegram_secret, img_num, img_name
+			FROM
+				recipegram_tb rg LEFT OUTER JOIN user_tb mem on mem.user_num=rg.user_num
+								LEFT OUTER JOIN img_tb img on rg.recipegram_num=img.recipegram_num
+								LEFT OUTER JOIN user_detail_tb det on det.user_num=rg.user_num
+								LEFT OUTER JOIN hash_tb hash on rg.recipegram_num=hash.recipegram_num
+			WHERE hash_name like '%'||#{recipe_search, jdbcType=VARCHAR}||'%' or user_nickname like '%'||#{recipe_search, jdbcType=VARCHAR}||'%'
+			)
+		order by firstdate desc
+		]]>
+	</select>
+		
+	<select id="getRecipegramLike" resultMap="recipegramMap">
+		SELECT                                                                                   
+			rg.recipegram_num, mem.user_num, det.user_nickname, recipegram_content, recipegram_like_cnt, rg.firstdate, rg.updatedate, recipegram_secret, img_num, img_name
+		FROM 
+			recipegram_tb rg LEFT OUTER JOIN user_tb mem on mem.user_num=rg.user_num
+						LEFT OUTER JOIN img_tb img on rg.recipegram_num=img.recipegram_num 
+                        LEFT OUTER JOIN user_detail_tb det on det.user_num=rg.user_num
+		oder by recipegram_like_cnt desc
+	</select>
+	
+	<select id="getMoreNewRecipegram" resultMap="recipegramMap">
+		<![CDATA[
+		
+		SELECT                                                                                                             
+		    recipegram_num, user_num, user_nickname, recipegram_content, recipegram_like_cnt, firstdate, updatedate, recipegram_secret, img_num, img_name
+		FROM (
+		    SELECT
+		        recipegram_num, user_num, user_nickname, recipegram_content, recipegram_like_cnt, firstdate, updatedate, recipegram_secret, img_num, img_name
+		    FROM
+		        (SELECT
+		            rg.recipegram_num, rg.user_num, det.user_nickname, recipegram_content, recipegram_like_cnt, rg.firstdate, rg.updatedate, recipegram_secret, img_num, img_name
+		        FROM
+		            recipegram_tb rg LEFT OUTER JOIN user_tb mem on mem.user_num=rg.user_num
+		                        	LEFT OUTER JOIN img_tb img on rg.recipegram_num=img.recipegram_num
+		                    		LEFT OUTER JOIN user_detail_tb det on det.user_num=rg.user_num
+		                			LEFT OUTER JOIN hash_tb hash on rg.recipegram_num=hash.recipegram_num
+					
+		         WHERE hash_name like '%'||#{recipe_search, jdbcType=VARCHAR}||'%' or user_nickname like '%'||#{recipe_search, jdbcType=VARCHAR}||'%'
+			
+		            order by firstdate desc
+		        )
+		
+		
+		where recipegram_num <= #{startNum}+3
+			)
+		where recipegram_num > #{startNum}
+		]]>
+		
+		
+	</select>
+	
+	
+	<insert id="insetReply"  parameterType="com.solrecipe.recipe.recipegram.domain.ReplyVO">
+	
+	  <selectKey keyProperty="recipegram_rereply_num" resultType="int" order="BEFORE">
+	    select NVL(MAX(recipegram_rereply_num+1),1) FROM recipegram_reply_tb
+	  </selectKey>
+	 
+		INSERT INTO recipegram_tb (recipegram_num, user_num, recipegram_content, firstdate, updatedate, recipegram_secret) 
+			VALUES (#{recipegram_num}, #{user_num}, #{recipegram_content}, #{firstdate}, #{updatedate}, #{recipegram_secret})
+	</insert>
+</mapper>

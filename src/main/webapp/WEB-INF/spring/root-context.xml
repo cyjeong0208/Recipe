@@ -26,14 +26,15 @@
 		<property name="typeAliasesPackage" value="com.solrecipe.recipe" />
 	</bean>
 	
+	
 	<bean id="userService" class="com.solrecipe.recipe.user.service.UserServiceImpl">
 		<!-- <beans:property name="javaMailSender" ref="javaMailSender"></beans:property> -->
 	</bean> 
+
+	<bean id="recipegramService" class="com.solrecipe.recipe.recipegram.service.RecipegramServiceImpl">
+	</bean> 
 	
 	
-
-
-
 	
 	<mybatis-spring:scan base-package="com.solrecipe.recipe"/> 
 	
