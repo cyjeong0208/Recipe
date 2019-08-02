@@ -22,5 +22,5 @@ public class RecipegramVO {
 	private List<ImgVO> imgList;
 	private List<HashVO> hashList;
 	private List<ReplyVO> replyList;
-
+	private List<Recipegram_likeVO> likeList;
 }

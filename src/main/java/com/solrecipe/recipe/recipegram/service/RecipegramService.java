@@ -1,5 +1,6 @@
 package com.solrecipe.recipe.recipegram.service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
@@ -8,7 +9,9 @@ import org.springframework.stereotype.Service;
 import com.solrecipe.recipe.recipegram.domain.ImgVO;
 import com.solrecipe.recipe.recipegram.domain.RecipegramCriteria;
 import com.solrecipe.recipe.recipegram.domain.RecipegramVO;
+import com.solrecipe.recipe.recipegram.domain.Recipegram_likeVO;
 import com.solrecipe.recipe.recipegram.domain.ReplyVO;
+import com.solrecipe.recipe.recipegram.domain.RereplyVO;
 
 
 public interface RecipegramService {
@@ -18,7 +21,19 @@ public interface RecipegramService {
 	public List<RecipegramVO> rgListWithSearch(RecipegramCriteria cri);
 	public List<RecipegramVO> getRecipegramLike();
 	public List<RecipegramVO> getMoreNewRecipegram(int startNum);
-	public void insetReply(ReplyVO replyvo);
-	public List<ReplyVO> selectRecipegramReplyByCode(ReplyVO replyvo);
-	
+	public int insertLikecnt(RecipegramVO recipegramvo);
+	public int insertLike(Recipegram_likeVO likevo);
+	public int deleteLikecnt(RecipegramVO recipegramvo);
+	public int deleteLike(Recipegram_likeVO likevo);
+	public int findLike(int user_num, int recipegram_num);
+	public List<Recipegram_likeVO>  getLike(int user_num);
+	public List<RecipegramVO> getLikecnt(int recipegram_num);
+	public int insertReply(ReplyVO replyvo);
+	public List<ReplyVO> getReplyList(int recipegram_num);
+	public int insertRereply(RereplyVO rereplyvo);
+	public List<RereplyVO> getRereplyList(int recipegram_reply_num);
+	public int deleteReply(int recipegram_reply_num);
+	public int deleteRereply(int recipegram_rereply_num);
+	public List<RecipegramVO> contList(int recipegram_num);
+	public List<ImgVO> imgList(int recipegram_num);
 }

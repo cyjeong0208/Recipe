@@ -41,7 +41,9 @@ import com.solrecipe.recipe.recipegram.domain.HashVO;
 import com.solrecipe.recipe.recipegram.domain.ImgVO;
 import com.solrecipe.recipe.recipegram.domain.RecipegramCriteria;
 import com.solrecipe.recipe.recipegram.domain.RecipegramVO;
+import com.solrecipe.recipe.recipegram.domain.Recipegram_likeVO;
 import com.solrecipe.recipe.recipegram.domain.ReplyVO;
+import com.solrecipe.recipe.recipegram.domain.RereplyVO;
 import com.solrecipe.recipe.recipegram.service.RecipegramService;
 import com.solrecipe.recipe.user.domain.MemberVO;
 
@@ -55,6 +57,27 @@ public class RecipegramController {
 	@Autowired
 	RecipegramService recipegramservice;
 	
+	//이미지 indigators
+		@RequestMapping(value="/img_list", method=RequestMethod.POST, produces="application/json;charset=UTF-8")
+		@ResponseBody
+		public List imgList(int recipegram_num) {
+			List<ImgVO> imgList = recipegramservice.imgList(recipegram_num);
+			
+			log.info("imgList");
+			
+			return imgList;
+		}
+		
+		//recipegramContent
+		@RequestMapping(value="/rg_content", method=RequestMethod.POST, produces="application/json;charset=UTF-8")
+		@ResponseBody
+		public List contentList(int recipegram_num) {
+			List<RecipegramVO> contList = recipegramservice.contList(recipegram_num);
+			log.info(contList);
+		
+			return contList;
+		}	
+	
 	@GetMapping("/recipegram_index")
 	public String rgList(@ModelAttribute("cri")RecipegramCriteria cri, Model model) {
 		log.info("list");
@@ -65,12 +88,14 @@ public class RecipegramController {
 	}
 	
 	/* @GetMapping("/recipegram_index") */
-	@PostMapping(value="/getRecipegramLike", produces="application/json;charset=UTF-8")
-	@ResponseBody
+	@GetMapping(value="/getRecipegramLike")
 	public String getLikeList(Model model) {
 		
-		model.addAttribute("likeList", recipegramservice.getRecipegramLike());
-		return "/recipegram/recipegram_index";
+		log.info("likeCnt!!!!!!!!");
+		
+		model.addAttribute("list", recipegramservice.getRecipegramLike());
+		
+		return ("/recipegram/recipegram_index");
 	}
 	
 	
@@ -162,58 +187,198 @@ public class RecipegramController {
 		return moreNewlist;
 	}
 	
-	
-	@RequestMapping(value="/insertReply")
+	@RequestMapping(value="/getLike", produces="application/json; charset=utf8")
     @ResponseBody
-    public String insertReply(@ModelAttribute("replyvo") ReplyVO replyvo, HttpServletRequest request) throws Exception{
+    public ArrayList<Recipegram_likeVO>  getLike (Recipegram_likeVO likevo, String user_num) {
+		likevo.setUser_num(Integer.parseInt(user_num));
+		ArrayList<Recipegram_likeVO>  get = (ArrayList)recipegramservice.getLike(Integer.parseInt(user_num));
+		
+		return get;
+	}
+	//좋아요
+	@RequestMapping(value="/insertLike", produces="application/json; charset=utf8")
+    @ResponseBody
+    public ArrayList<RecipegramVO> insertLike (String recipegram_num, String user_num,
+    						RecipegramVO recipegramvo, Recipegram_likeVO likevo) {
+		//좋아요 카운트...  Recipegram_tb
+		//int like = Integer.parseInt(like_cnt);
+		
+		log.info("recipegram_num : " + recipegram_num);
+		
+		ArrayList<RecipegramVO> insert = new ArrayList<RecipegramVO>();
+		
+		recipegramvo.setRecipegram_num(Integer.parseInt(recipegram_num));
+		
+		
+		likevo.setRecipegram_num(Integer.parseInt(recipegram_num));
+		likevo.setUser_num(Integer.parseInt(user_num));
+		
+		int findlike = recipegramservice.findLike(Integer.parseInt(user_num), Integer.parseInt(recipegram_num));
+		
+		log.info("findlike1 : " + findlike);
+		//이미 좋아요를 하지 않은상태면 .. 
+		if(findlike == -1) {
+			
+			//카운트 증가.. 
+			insert = (ArrayList)recipegramservice.getLikecnt(Integer.parseInt(recipegram_num));
+				
+			log.info(insert);
+			recipegramservice.insertLikecnt(recipegramvo);
+		
+		
+		//레시피그램 좋아요... Recipegram_like_tb
+			
+			recipegramservice.insertLike(likevo);
+		
+		}
+		
+		return insert; 
+	}
+	
+	//좋아요
+		@RequestMapping(value="/deleteLike", produces="application/json; charset=utf8")
+	    @ResponseBody
+	    public ArrayList<RecipegramVO> deleteLike (String recipegram_num, String user_num,
+	    						RecipegramVO recipegramvo, Recipegram_likeVO likevo) {
+			//좋아요 카운트...  Recipegram_tb
+			//int like = Integer.parseInt(like_cnt);
+		
+			log.info("recipegram_num : " + recipegram_num);
+			ArrayList<RecipegramVO> delete = new ArrayList<RecipegramVO>();
+			
+			recipegramvo.setRecipegram_num(Integer.parseInt(recipegram_num));
+			
+			
+			likevo.setRecipegram_num(Integer.parseInt(recipegram_num));
+			likevo.setUser_num(Integer.parseInt(user_num));
+			log.info("controller user_num : " + user_num + " recipegram_num : " + recipegram_num);
+			
+			int findlike = recipegramservice.findLike(Integer.parseInt(user_num), Integer.parseInt(recipegram_num));
+			
+			log.info("findLike : " + findlike);
+			
+			//이미 좋아요를 한 상태면 .. 
+			if(findlike != -1) {
+			
+				delete = (ArrayList)recipegramservice.getLikecnt(Integer.parseInt(recipegram_num));
+				
+				log.info(delete);
+				recipegramservice.deleteLikecnt(recipegramvo);
+				
+				//레시피그램 좋아요... Recipegram_like_tb
+				recipegramservice.deleteLike(likevo);
+				
+			}
+			
+			return delete; 
+		}
+	
+	
+	@RequestMapping(value="/insertReply", produces="application/json; charset=utf8")
+    @ResponseBody
+    public int insertReply(ReplyVO replyvo, String user_num, String user_nickname, 
+    					String recipegram_num, String reply) throws Exception{
         
-        HttpSession session = request.getSession();
-        MemberVO membervo = (MemberVO)session.getAttribute("loginVO");
         
-        try{
-        
-        	replyvo.setUser_nickname(membervo.getUser_nickname());        
-        	recipegramservice.insetReply(replyvo);
-            
-        } catch (Exception e){
-            e.printStackTrace();
-        }
-        
-        return "success";
+		replyvo.setRecipegram_num(Integer.parseInt(recipegram_num));
+		replyvo.setUser_num(Integer.parseInt(user_num));
+		//replyvo.setUser_nickname(user_nickname);
+		replyvo.setRecipegram_reply_content(reply);
+		replyvo.setFirstdate(new Date(System.currentTimeMillis()));		
+		replyvo.setUpdatedate(new Date(System.currentTimeMillis()));
+		
+		
+		log.info(replyvo);
+		
+		int insert = recipegramservice.insertReply(replyvo);
+		
+		
+        return insert;
     }
     
-    /**
-     * 게시물 댓글 불러오기(Ajax)
-     * @param boardVO
-     * @param request
-     * @return
-     * @throws Exception
-     */
+	@RequestMapping(value="/insertRereply", produces="application/json; charset=utf8")
+    @ResponseBody
+    public int insertRereply(RereplyVO rereplyvo, String user_num, String user_nickname, 
+    					String recipegram_num, String reply, String reply_num) throws Exception{
+       
+		rereplyvo.setUser_num(Integer.parseInt(user_num));
+		//replyvo.setUser_nickname(user_nickname);
+		rereplyvo.setRecipegram_rereply_content(reply);
+		rereplyvo.setRecipegram_reply_num(Integer.parseInt(reply_num));
+		rereplyvo.setFirstdate(new Date(System.currentTimeMillis()));		
+		rereplyvo.setUpdatedate(new Date(System.currentTimeMillis()));
+		rereplyvo.setRecipegram_num(Integer.parseInt(recipegram_num));
+		
+		log.info(rereplyvo);
+		
+		int insert = recipegramservice.insertRereply(rereplyvo);
+	
+		log.info(insert);
+        return 0;
+    }
+    
+   
 	@RequestMapping(value="/replyList", produces="application/json; charset=utf8")
     @ResponseBody
-    public ResponseEntity replyList(@ModelAttribute("replyvo") ReplyVO replyvo, HttpServletRequest request) throws Exception{
+    public ArrayList<ReplyVO> replyList(String recipegram_num, String user_nickname, String user_num, ReplyVO replyvo, RereplyVO rereplyvo) throws Exception{
         
-        HttpHeaders responseHeaders = new HttpHeaders();
-        ArrayList<HashMap> hmlist = new ArrayList<HashMap>();
+        replyvo.setRecipegram_num(Integer.parseInt(recipegram_num));
+        
+        
+        replyvo.setUser_nickname(user_nickname);
+        replyvo.setUser_num(Integer.parseInt(user_num));
+        
+        rereplyvo.setUser_num(Integer.parseInt(user_num));
+        rereplyvo.setUser_nickname(user_nickname);
+ 
         
         // 해당 게시물 댓글
-        List<ReplyVO> ReplyVO = recipegramservice.selectRecipegramReplyByCode(replyvo);
+        ArrayList<ReplyVO> ReplyVO = (ArrayList)recipegramservice.getReplyList(Integer.parseInt(recipegram_num));;
         
-        if(ReplyVO.size() > 0){
-            for(int i=0; i<ReplyVO.size(); i++){
-                HashMap hm = new HashMap();
-                //hm.put("c_code", ReplyVO.get(i).get .getC_code());
-                hm.put("comment", ReplyVO.get(i).getRecipegram_reply_content());
-                hm.put("writer", ReplyVO.get(i).getUser_nickname());
-                
-                hmlist.add(hm);
-            }
-            
-        }
         
-        JSONArray json = new JSONArray();  
-        json.add(hmlist);
-        return new ResponseEntity(json.toString(), responseHeaders, HttpStatus.CREATED);
+       
+        return ReplyVO;
         
     }
+	
+	@RequestMapping(value="/rereplyList", produces="application/json; charset=utf8")
+    @ResponseBody
+    public ArrayList<RereplyVO> rereplyList(String recipegram_reply_num, String user_nickname, RereplyVO rereplyvo) throws Exception{
+        
+        rereplyvo.setRecipegram_reply_num(Integer.parseInt(recipegram_reply_num));
+        
+        rereplyvo.setUser_nickname(user_nickname);
+        // 해당 게시물 댓글
+        ArrayList<RereplyVO> RereplyVO = (ArrayList)recipegramservice.getReplyList(Integer.parseInt(recipegram_reply_num));;
+        
+        
+        
+       log.info(RereplyVO); 
+       
+       
+        return RereplyVO;
+        
+    }
+	
+	@RequestMapping(value="/deleteReply", produces="application/json; charset=utf8")
+    @ResponseBody
+    public int delteReply(String recipegram_reply_num) throws Exception{
+		
+		log.info(recipegram_reply_num);
+		int result = recipegramservice.deleteReply(Integer.parseInt(recipegram_reply_num));
+		
+		log.info("delete : " + result);
+		return 0;
+	}
+	
+	@RequestMapping(value="/deleteRereply", produces="application/json; charset=utf8")
+    @ResponseBody
+    public int deleteRereply(String recipegram_rereply_num) throws Exception{
+		
+		log.info(recipegram_rereply_num);
+		int result = recipegramservice.deleteRereply(Integer.parseInt(recipegram_rereply_num));
+		
+		log.info("delete : " + result);
+		return 0;
+	}
 }

@@ -265,7 +265,7 @@ input.cooking_txt:focus, .recipegram_btn:focus, #recipegram_content:focus
 <script>
 // 이미지 추가 및 메인이미지 초기화 로직
   
-	var imgSrcList=[];
+	var imgSrcList=[];  //src
 
 	
 	$(document).ready(function(){
@@ -273,8 +273,8 @@ input.cooking_txt:focus, .recipegram_btn:focus, #recipegram_content:focus
 	});
 	
 	function handleImgFiles(e){
-		var files = e.target.files;
-		var filesArr = Array.prototype.slice.call(files);
+		var files = e.target.files;  //전체파일..  src 
+		var filesArr = Array.prototype.slice.call(files);  //나눠서..  src
 		
 		if(filesArr.length >10){
 			alert("이미지를 10개이하 등록해주세요!");
@@ -330,7 +330,9 @@ input.cooking_txt:focus, .recipegram_btn:focus, #recipegram_content:focus
 	    var formData = new FormData();
 	    
 	    var inputFile = $("input[name='imgs']");
-	    
+		//var inputFile = Array.prototype.slice.call(files);
+		
+	    console.log(inputFile);
 	    var inputText = document.getElementById('recipegram_content').innerHTML;
 	    
 	    var inputSecret = document.getElementById('inlineCheckbox1').checked;  //false, true
@@ -343,6 +345,10 @@ input.cooking_txt:focus, .recipegram_btn:focus, #recipegram_content:focus
 	    	alert("해시태그를 1개이상 등록해주세요!");
 	    	return false;
 	    }
+	    /* if(files.length == 0){
+			  alert("이미지를 1개이상 등록해주세요!");
+			  return false;
+		} */
 	    if(files.length == 0){
 			  alert("이미지를 1개이상 등록해주세요!");
 			  return false;
@@ -369,10 +375,10 @@ input.cooking_txt:focus, .recipegram_btn:focus, #recipegram_content:focus
 	      beforeSend: function(xhr) {
 	          xhr.setRequestHeader(csrfHeaderName, csrfTokenValue);
 	      },
-	      dataType:'json',
+	      //dataType:'json',
 	      success: function(result){
 	          console.log(result); 
-	          //window.location.href = "/recipegram_index";
+	          location.href = "/recipegram_index";
 			  //showUploadResult(result); //업로드 결과 처리 함수 
 
 	      },error:function(request,status,error){
