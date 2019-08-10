@@ -16,6 +16,7 @@ import com.solrecipe.recipe.recipegram.domain.Recipegram_likeVO;
 import com.solrecipe.recipe.recipegram.domain.ReplyVO;
 import com.solrecipe.recipe.recipegram.domain.RereplyVO;
 import com.solrecipe.recipe.recipegram.mapper.RecipegramMapper;
+import com.solrecipe.recipe.user.mapper.UserMapper;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.log4j.Log4j;
@@ -56,24 +57,114 @@ public class RecipegramServiceImpl implements RecipegramService{
 			recipegramMapper.insertRecipegram_hash(hash);
 		}
 	}
+	
+	@Override
+	public int updateRecipegram(RecipegramVO recipegramvo) {
+		// TODO Auto-generated method stub
+		int result = recipegramMapper.updateRecipegram(recipegramvo);
+		
+		return recipegramMapper.updateRecipegram(recipegramvo);
+	}
+
+	public void updateRecipegram_hash(String[] hashTag, RecipegramVO recipegramvo) {
+		// TODO Auto-generated method stub
+	
+		int result = recipegramMapper.deleteRecipegram_hash(recipegramvo.getRecipegram_num());
+		
+		if(result !=0 ) {
+			
+			for(int i=0; i<hashTag.length; i++) {
+				HashVO hash = new HashVO();
+				hash.setRecipegram_num(recipegramvo.getRecipegram_num());
+				hash.setHash_name(hashTag[i]);
+				
+				recipegramMapper.updateRecipegram_hash(hash);
+			}
+		}
+	}
+	
 	@Override
 	public List<RecipegramVO> rgListWithSearch(RecipegramCriteria cri) {
 
-		log.info("recipegramList with criteria: " + cri);
-
-		return recipegramMapper.getRecipegramList(cri);
+		Integer hash_cnt = recipegramMapper.getHashCnt(cri);
+		List<RecipegramVO> more_recipe = new ArrayList<RecipegramVO>();
+		log.info("hs_cnt : " + hash_cnt);
+		
+		int startNum = 0;
+		//hash로 검색 
+		//조건.. 제발 ㅠ
+		
+		if(cri.getRecipe_search() != null  &&hash_cnt != 0) {
+			log.info("검");
+			log.info(cri);
+		
+				Integer[] rg_num = recipegramMapper.getHashrg(cri.getRecipe_search(), startNum);
+				
+				for(int i=0; i<rg_num.length; i++) {
+					log.info(rg_num[i]);
+					more_recipe.add(recipegramMapper.getHashList(rg_num[i]));
+				}
+			
+			return more_recipe;
+		}
+		
+		
+		Integer[] rownum = recipegramMapper.getRownum(startNum);
+		for(int i=0; i<rownum.length; i++) {
+			log.info("무 ");
+			more_recipe.add(recipegramMapper.getMoreLikeNewRecipegram(rownum[i]));
+			
+			
+		}
+		
+		log.info("for : "+more_recipe);
+		
+		return more_recipe;
 	}
 
 	@Override
-	public List<RecipegramVO> getRecipegramLike() {
+	public List<RecipegramVO> getRecipegramLike(RecipegramCriteria cri) {
 		// TODO Auto-generated method stub
-		return recipegramMapper.getRecipegramLike();
+		
+		Integer hash_cnt = recipegramMapper.getHashCnt(cri);
+	
+		List<RecipegramVO> more_recipe = new ArrayList<RecipegramVO>();
+
+		//hash로 검색 
+		//조건.. 제발 ㅠ
+		int startNum = 0;
+		if(cri.getRecipe_search() != null  &&hash_cnt != 0) {
+			log.info("검");
+			
+			Integer[] rg_num = recipegramMapper.getHashrg(cri.getRecipe_search(), startNum);
+			
+				for(int i=0; i<rg_num.length; i++) {
+					more_recipe.add(recipegramMapper.getHashList(rg_num[i]));
+				}
+			
+			return more_recipe;
+			
+		}
+		
+		
+		Integer[] rownum = recipegramMapper.getlikeRownum(startNum);
+		for(int i=0; i<rownum.length; i++) {
+			log.info("무 ");
+			more_recipe.add(recipegramMapper.getMoreLikeNewRecipegram(rownum[i]));
+			log.info("please" + i);
+			log.info(more_recipe);
+			
+		}
+		
+		log.info("for : "+more_recipe);
+		
+		return more_recipe;
 	}
 
-	@Override
-	public List<RecipegramVO> getMoreNewRecipegram(int startNum) {
-		return recipegramMapper.getMoreNewRecipegram(startNum);
-	}
+//	@Override
+//	public List<RecipegramVO> getMoreNewRecipegram(int startNum) {
+//		return recipegramMapper.getMoreNewRecipegram(startNum);
+//	}
 
 	@Override
 	public int insertLikecnt(RecipegramVO recipegramvo) {
@@ -103,7 +194,6 @@ public class RecipegramServiceImpl implements RecipegramService{
 	@Override
 	public int findLike(int user_num, int recipegram_num) {
 		// TODO Auto-generated method stub
-		log.info("service user_num : " + user_num + " recipegram_num : " + recipegram_num);
 		Integer user = recipegramMapper.findLike(user_num, recipegram_num);
 		
 		if(user == null) {
@@ -137,6 +227,12 @@ public class RecipegramServiceImpl implements RecipegramService{
 	@Override
 	public List<ReplyVO> getReplyList(int recipegram_num) {
 		// TODO Auto-generated method stub
+		
+		List<ReplyVO> a = recipegramMapper.getReplyList(recipegram_num);
+		for(int i=0; i<a.size(); i++) {
+			log.info("rereply : " +a.get(i).getRereplyList());
+		}
+		
 		return recipegramMapper.getReplyList(recipegram_num);
 	}
 	
@@ -149,6 +245,7 @@ public class RecipegramServiceImpl implements RecipegramService{
 	@Override
 	public List<RereplyVO> getRereplyList(int recipegram_reply_num) {
 		// TODO Auto-generated method stub
+		
 		return recipegramMapper.getRereplyList(recipegram_reply_num);
 	}
 
@@ -174,6 +271,73 @@ public class RecipegramServiceImpl implements RecipegramService{
 	public List<ImgVO> imgList(int recipegram_num) {
 		// TODO Auto-generated method stub
 		return recipegramMapper.imgList(recipegram_num);
+	}
+
+	@Override
+	public List<RecipegramVO>  getRownum(RecipegramCriteria cri, int startNum) {
+		// TODO Auto-generated method stub
+		Integer hash_cnt = recipegramMapper.getHashCnt(cri);
+		List<RecipegramVO> more_recipe = new ArrayList<RecipegramVO>();
+		log.info("hs_cnt : " + hash_cnt);
+		
+		if(cri.getRecipe_search() != null  &&hash_cnt != 0) {
+			log.info("get검");
+			log.info(cri);
+			if(hash_cnt/3 > startNum) {
+				log.info("kkkk : " +startNum);
+				Integer[] rg_num = recipegramMapper.getHashrg(cri.getRecipe_search(), startNum);
+				
+				for(int i=0; i<rg_num.length; i++) {
+					log.info(rg_num[i]);
+					more_recipe.add(recipegramMapper.getHashList(rg_num[i]));
+				}
+			}
+			return more_recipe;
+		}
+		
+		Integer[] rownum = recipegramMapper.getRownum(startNum);
+		for(int i=0; i<rownum.length; i++) {
+			more_recipe.add(recipegramMapper.getMoreNewRecipegram(rownum[i]));
+			
+		}
+		
+		log.info("start : " + startNum );
+		
+		return more_recipe;
+	}
+
+	@Override
+	public List<RecipegramVO> getlikeRownum(int startNum) {
+		// TODO Auto-generated method stub
+		Integer[] rownum = recipegramMapper.getlikeRownum(startNum);
+		List<RecipegramVO> more_recipe = new ArrayList<RecipegramVO>();
+		for(int i=0; i<rownum.length; i++) {
+			more_recipe.add(recipegramMapper.getMoreLikeNewRecipegram(rownum[i]));
+			
+		}
+		
+		log.info("start : " + startNum );
+		
+		return more_recipe;
+	}
+
+	@Override
+	public List<RecipegramVO> rguserList(String user_nickname) {
+		// TODO Auto-generated method stub
+		
+		return recipegramMapper.rguserList(user_nickname);
+	}
+
+	@Override
+	public int deleteRecipegram(int recipegram_num) {
+		// TODO Auto-generated method stub
+		return recipegramMapper.deleteRecipegram(recipegram_num);
+	}
+
+	@Override
+	public List<RecipegramVO> getmodifyRecipegram(int recipegram_num) {
+		// TODO Auto-generated method stub
+		return recipegramMapper.getmodifyRecipegram(recipegram_num);
 	}
 	
 	

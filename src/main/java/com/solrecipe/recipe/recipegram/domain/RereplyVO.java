@@ -8,12 +8,12 @@ import lombok.Data;
 public class RereplyVO {
 	int recipegram_rereply_num;
 	int recipegram_reply_num;
-	int user_num;
+	int rere_user_num;
 	int recipegram_num;
 	String recipegram_rereply_content;
 	Date firstdate;
 	Date updatedate;
-	private String user_nickname;
+	String rere_user_nickname;
 	
    
 }

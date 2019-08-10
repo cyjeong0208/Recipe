@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.solrecipe.recipe.CommonMapper">
+	
+	<resultMap type="memberVO" id="memberResultMap">
+		<result property="user_num" column="user_num"/>
+		<result property="user_nickname" column="user_nickname"/>
+		<result property="user_name" column="user_name"/>
+		<result property="user_intro" column="user_intro"/>
+		<result property="user_img" column="user_img"/>
+		<result property="isopen" column="isopen"/>
+	</resultMap>
+	
+	<select id="getMyVO" resultMap="memberResultMap">
+		 select d.user_num, d.user_nickname, d.user_name, p.user_intro, p.user_img, p.isopen
+		from user_tb u
+            left join user_detail_tb d on u.user_num = d.user_num
+            left join user_profile_tb p  on p.user_num = u.user_num
+        
+		where u.user_username = #{id}
+	</select>
+	
+</mapper>

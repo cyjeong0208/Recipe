@@ -6,7 +6,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
 
-
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
@@ -55,7 +55,7 @@ public class MailController {
 
 
 	//회원가입 이메일 인증 
-	@RequestMapping(value="/send", method = RequestMethod.POST, produces = "application/json")
+	@RequestMapping(value="/send", method = RequestMethod.POST, produces="text/plain;charset=UTF-8")
 	//@GetMapping("/sendMail")  HttpSession session   @RequestParam String email
 	@ResponseBody
 	public int sendMail(HttpSession session, @RequestParam String email) {
@@ -82,11 +82,12 @@ public class MailController {
 	//회원가입 이메일 인증번호 확인 
 		
 		
-		@RequestMapping(value="/check", method = RequestMethod.POST, produces = "application/json")
+		@RequestMapping(value="/check", method = RequestMethod.POST, produces="text/plain;charset=UTF-8")
 		//@GetMapping("/sendMail")  HttpSession session   @RequestParam String email
 		@ResponseBody
-		public String checkCode(MemberVO membervo, @RequestParam String email, @RequestParam int joinCode, HttpServletResponse response, RedirectAttributes rttr) throws IOException {
-			
+		public String checkCode(MemberVO membervo, @RequestParam String email, @RequestParam int joinCode, HttpServletRequest request, HttpServletResponse response, RedirectAttributes rttr) throws IOException {
+				request.setCharacterEncoding("utf-8");
+				response.setHeader("Content-Type", "text/html;charset=utf-8");
 				
 				int[] results = {1,0};
 				int result = 1;  //이메일  

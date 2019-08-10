@@ -10,10 +10,12 @@
 		<result property="user_nickname" column="user_nickname"/>
 		<result property="user_intro" column="user_intro"/>
 		<result property="user_img" column="user_img"/>
+		<result property="isopen" column="isopen"/>
 		<result property="firstdate" column="firstdate"/>
 		<result property="updatedate" column="updatedate"/>
 		<collection property="authList" resultMap="authMap">
 		</collection>
+		
 	</resultMap>
 	<resultMap type="com.solrecipe.recipe.user.domain.AuthVO" id="authMap">
 		<result property="user_username" column="user_username"/>
@@ -32,7 +34,7 @@
 			user_tb mem LEFT OUTER JOIN user_auth_tb auth on mem.user_username=auth.user_username
 		WHERE mem.user_username = #{user_username} -->
 		SELECT 
-			mem.user_num, mem.user_username, user_pw, user_nickname, enabled, user_auth
+			mem.user_num, mem.user_username, user_pw, user_name, user_nickname, enabled, user_auth
 		FROM 
 			user_tb mem LEFT OUTER JOIN user_auth_tb auth on mem.user_username=auth.user_username
 						LEFT OUTER JOIN user_detail_tb det on mem.user_num=det.user_num 
@@ -75,5 +77,55 @@
 	</insert>
 	<select id="confirmUser" parameterType="String" resultType="int">
 		select count(*) from user_tb where user_username=#{user_username}
+	</select>
+	
+	<select id="getUser" parameterType="String" resultMap="memberMap">
+		SELECT 
+			mem.user_num, mem.user_username, user_name, user_nickname, user_intro, user_img
+		FROM 
+			user_tb mem 
+						LEFT OUTER JOIN user_detail_tb det on mem.user_num=det.user_num 
+		WHERE mem.user_username = #{user_username}
+		
+	</select>
+	
+	<select id="getPublic" parameterType="String" resultMap="memberMap">
+		SELECT 
+			mem.user_num, mem.user_username, user_nickname, pro.user_intro, pro.user_img, pro.isopen
+		FROM 
+			user_tb mem 
+						LEFT OUTER JOIN user_detail_tb det on mem.user_num=det.user_num 
+						LEFT OUTER JOIN user_profile_tb pro on mem.user_num=pro.user_num 
+		WHERE user_nickname = #{user_nickname}
+		
+	</select>
+	<insert id="insertProfile" parameterType="com.solrecipe.recipe.user.domain.MemberVO">
+		<selectKey keyProperty="user_num" resultType="int" order="BEFORE">
+	    	select user_num FROM user_tb WHERE user_username = #{user_username}
+	  	</selectKey>
+	  	
+		INSERT INTO user_profile_tb (user_num, user_intro, user_img, isopen) 
+			VALUES (#{user_num}, #{user_intro}, #{user_img}, #{isopen})
+	</insert>
+	
+	<select id="chkNickname" resultType="Integer">
+		select user_num from user_detail_tb where user_nickname = #{user_nickname}
+	
+	</select>
+	<select id="chkUsername" resultType="Integer">
+		select user_num from user_tb 
+		where user_username = #{user_username}
+	
+	</select>
+	<select id="chkName" resultType="Integer">
+		select user_num from user_detail_tb
+		where user_name = #{user_name}
+	
+	</select>
+	<select id="newPw" resultType="Integer">
+		update  user_tb set user_pw = #{user_pw}
+									
+						where user_username = #{user_username} 
+	
 	</select>
 </mapper>

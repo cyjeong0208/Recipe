@@ -18,10 +18,19 @@ public interface RecipegramMapper {
 	int insertRecipegram(RecipegramVO recipegramvo);
 	int insertRecipegram_img(ImgVO imgvo);
 	void insertRecipegram_hash(HashVO hashvo);
+	int updateRecipegram(RecipegramVO recipegramvo);
+	int deleteRecipegram_hash(int recipegram_num);
+	void updateRecipegram_hash(HashVO hashvo);
+	
 	List<RecipegramVO> recipegramList();
 	List<RecipegramVO> getRecipegramList(RecipegramCriteria cri);
 	List<RecipegramVO> getRecipegramLike();
-	List<RecipegramVO> getMoreNewRecipegram(int startNum);
+	RecipegramVO getHashList(int recipegram_num);
+	Integer getHashCnt(RecipegramCriteria cri);
+	Integer[] getHashrg(@Param("recipe_search") String recipe_search, @Param("startNum") int startNum);
+	
+	RecipegramVO getMoreNewRecipegram(int Num);
+	RecipegramVO getMoreLikeNewRecipegram(int Num);
 	void insetReply(ReplyVO replyvo);
 	List<ReplyVO> selectRecipegramReplyByCode(ReplyVO replyvo);
 	int insertLikecnt(RecipegramVO recipegramvo);
@@ -40,5 +49,12 @@ public interface RecipegramMapper {
 	
 	List<RecipegramVO> contList(int recipegram_num);
 	List<ImgVO> imgList(int recipegram_num);
-		
+	
+	Integer[] getRownum(int startNum);
+	Integer[] getlikeRownum(int startNum);
+	
+	List<RecipegramVO> rguserList(String user_nickname);
+	
+	int deleteRecipegram(int recipegram_num);
+	List<RecipegramVO> getmodifyRecipegram(int recipegram_num);
 }

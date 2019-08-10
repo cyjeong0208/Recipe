@@ -132,19 +132,49 @@ body {
 /* Modal Content/Box */
 .modal-content {
 	background-color: #fefefe;
+	margin: 1% auto; /* 15% from the top and centered */
+	padding: 1%;
+	border: 1px solid #888;
+	width: 50%; /* Could be more or less, depending on screen size */
+	height: auto;
+}@media (max-width:500px){
+	.modal-content{
+		margin: 2%; /* 15% from the top and centered */
+		padding: 1%;
+		width: 93%;
+	}
+}
+
+.find-modal-content {
+	background-color: #fefefe;
 	margin: 8% auto; /* 15% from the top and centered */
 	padding: 2%;
 	border: 1px solid #888;
 	width: 50%; /* Could be more or less, depending on screen size */
 	height: auto;
 }@media (max-width:500px){
-	.modal-content{
+	.find-modal-content{
 		margin: 2% 5%; /* 15% from the top and centered */
 		padding: 1%;
 		width: 93%;
 	}
 }
 
+
+.new-modal-content {
+	background-color: #fefefe;
+	margin: 8% auto; /* 15% from the top and centered */
+	padding: 2%;
+	border: 1px solid #888;
+	width: 50%; /* Could be more or less, depending on screen size */
+	height: auto;
+}@media (max-width:500px){
+	.new-modal-content{
+		margin: 2% 5%; /* 15% from the top and centered */
+		padding: 1%;
+		width: 93%;
+	}
+}
 .email_sign_up_content{
 	background-color: #fefefe;
 	margin: 8% auto; /* 15% from the top and centered */
@@ -358,6 +388,10 @@ label#menu_label, #menu{
 		<jsp:include page = "email_signUp.jsp"/>
 		
 		<jsp:include page = "signUp.jsp"/>
+		
+		<jsp:include page = "findPW.jsp"/>
+		
+		<jsp:include page = "newPW.jsp"/>
 			
   <div class="site-wrap"  id="home-section">
 
@@ -409,7 +443,7 @@ label#menu_label, #menu{
 						<!-- 관리자시...  -->                  
                    		<sec:authorize access="hasRole('ROLE_ADMIN')">
 							<li>
-								<a href="admin/admin_index.jsp"class="nav-link" id="nickname" style="border:none; color:#65737e; background:none"> 
+								<a href="/admin_index"class="nav-link" id="nickname" style="border:none; color:#65737e; background:none"> 
 									<sec:authentication property="principal.member.user_nickname"/> 
 									
 								</a>
@@ -425,7 +459,7 @@ label#menu_label, #menu{
 						<!-- 일반 user -->
 						<sec:authorize access="!hasRole('ROLE_ADMIN')">
 							<li>
-								<a href="myPage/myPage_index.jsp"class="nav-link" id="nickname" style="border:none; color:#65737e; background:none">
+								<a href="/myPage_index"class="nav-link" id="nickname" style="border:none; color:#65737e; background:none">
 									<sec:authentication property="principal.member.user_nickname"/>
 									
 								</a>
@@ -618,6 +652,8 @@ label#menu_label, #menu{
           <div class="col-12 text-center">
             <div class="block-heading-1">
               <h2>레 시 피 그 램</h2>
+              <a href = "recipegram_index">
+            		<h3 class="text-right font-size-17 h4 mb-2"> + 더보기</h3></a>
             </div>
           </div>
         </div>
@@ -744,10 +780,16 @@ label#menu_label, #menu{
 var modal = document.getElementById('loginModal');
 var modal_email = document.getElementById('email_signupModal');
 var modal_sign_up = document.getElementById('sign_up_Modal');
+var modal_findPW = document.getElementById('findPWModal');
+var modal_newPW = document.getElementById('newPWModal');
+
 
 var span1 = document.getElementsByClassName("close")[0];
 var span2 = document.getElementsByClassName("close")[1];
 var span3 = document.getElementsByClassName("close")[2];
+var span4 = document.getElementsByClassName("close")[3];
+var span5 = document.getElementsByClassName("close")[4];
+
 
 
 $('#login').click(function() {
@@ -763,6 +805,22 @@ $('#signup').click(function() {
 
 });
 
+//비밀번호 찾 
+$('#findPW_btn').click(function() {
+
+   modal.style.display = "none";
+   modal_findPW.style.display = "block";
+
+});
+
+//비밀번호 찾기 다음 
+/* $('#find_btn').click(function() {
+
+	modal_findPW.style.display = "none";
+   modal_newPW.style.display = "block";
+
+}); */
+
  span1.onclick = function() {
    modal.style.display = "none";
    }
@@ -772,7 +830,12 @@ $('#signup').click(function() {
  span3.onclick = function() {
 	 modal_sign_up.style.display = "none";
 }
-
+ span4.onclick = function() {
+	 modal_findPW.style.display = "none";
+}
+ span5.onclick = function() {
+	 modal_newPW.style.display = "none";
+}
 window.onclick = function(event) {
    if (event.target == modal) {
       modal.style.display = "none";
@@ -813,7 +876,7 @@ $("#signup_btn").on("click", function(e){
 	var cnt =0;
 	$.ajax({
              type: "get",
-             url: "/mail/move?",
+             url: "/mail/move",
              contentType:'application/json; charset=UTF-8',
              dataType:'json',
             
@@ -837,9 +900,12 @@ $("#signup_btn").on("click", function(e){
             			if(val1 == 0){
             				if(val2 != 0){
 								
-                				$("#email").css("background-color", "#FFA19D");
-                				console.log("return1 : " + val2);
+                				$("#email_chk_text").css("display", "inline");
+                				$("#joinCode_chk_text").css("display", "none");
                 				
+                				
+                				$('#send_btn').removeAttr('disabled');
+                				$('#check_btn').removeAttr('disabled');
                 				
     							return false;
             				}
@@ -849,17 +915,20 @@ $("#signup_btn").on("click", function(e){
             			//임시코드 일치하지 않음.... 
             			else if(val1 == 1){
             				if(val2 != 1){
-            					$("#joinCode").css("background-color", "#FFA19D");
-                				console.log("return2 : " + val2);
+            					$("#email_chk_text").css("display", "none");
+            					$("#joinCode_chk_text").css("display", "inline");
+                				
+                				$('#send_btn').removeAttr('disabled');
+                				$('#check_btn').removeAttr('disabled');
+                				
+                				
                 				
                 				return false;
                 			}
-            				console.log("cnt : " + cnt);
+            		
             				cnt++
             			}
             			if(cnt == 2){
-            				console.log("return3 : " + val1 + ", " + val2);
-            				console.log("cnt : " + cnt);
             				
             				$('#user_username').val(idx);
             				
@@ -885,6 +954,7 @@ $("#signup_btn").on("click", function(e){
 	modal_sign_up.style.display = "block"; */
     
 });
+
 
 
 

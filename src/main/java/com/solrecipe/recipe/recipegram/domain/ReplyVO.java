@@ -13,7 +13,7 @@ public class ReplyVO {
 	String recipegram_reply_content;
 	Date firstdate;
 	Date updatedate;
-	private String user_nickname;
+	String user_nickname;
 	
 	private List<RereplyVO> rereplyList;   
 }

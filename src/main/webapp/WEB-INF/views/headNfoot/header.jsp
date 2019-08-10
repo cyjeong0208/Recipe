@@ -1,12 +1,11 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
     pageEncoding="UTF-8"%>
 
+<%@ taglib uri = "http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<%@ taglib uri = "http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
+<%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags" %>
 
-<%
-		//session에 객체로 아이디와유저네임을 넣어서 불러올수 잇게 
-		String id = (String)session.getAttribute("username");
-	 	
-		%>
+
 <head>	
 <style>
 /* The Modal (background) */
@@ -152,7 +151,7 @@
 	background-color: #FFC69F;
 }
 
-label, #menu{
+label#menu_label, #menu{
 	display:none;
 }
 
@@ -166,7 +165,7 @@ label, #menu{
 	ul>li{
 		display:block;
 	}
-	label{
+	label#menu_label{
 		display:block;
 	}
 	
@@ -191,29 +190,75 @@ label, #menu{
           
             <!-- 로고 -->
             <div class="site-logo">
-              <a href="../main.jsp" class="text-black"><span class="text-primary">자취방 레시피</span></a>
+              <a href="main" class="text-black"><span class="text-primary">자취방 레시피</span></a>
             </div>
 				
 			  <!-- main 메뉴 아이콘  -->            
               <nav class="site-navigation text-center ml-auto" role="navigation">
-              <label for="menu" onclick>
-				 <img src="../img/header/menu.png" style="width:25%">
+				<label for="menu" id="menu_label">
+				 <img src="img/header/menu.png" style="width:25%">
 				</label>
 				<input type="checkbox"id="menu">
 				
+			      <ul class="site-menu main-menu js-clone-nav  d-lg-block" id="nav">
+			       
+                  <!-- id이용하여 이동  recipe-section부분은 이동 어디로?? 레시피페이지는 어디서 이동???-->
+                  <li><a href="recipe_index" id="recipe_link" class="nav-link"><img src="img/header/recipe.png" height="40px"/></a></li>
+                  <li><a href="foodvideo_index" id="video_link" class="nav-link"><img src="img/header/foodvideo.png" height="40px"/></a></li>
+                  <li><a href="recipegram_index" id="recipegram_link" class="nav-link"><img src="img/header/recipegram.png" height="40px"/></a></li>
+                  <li><a href="salethind_homeplus" id="sale_link" class="nav-link"><img src="img/header/salething.png" height="40px"/></a></li>
+                  <li><a href="change_index" id="chat_link" class="nav-link"><img src="img/header/chat.png" height="40px"/></a></li>
+                  
+                  
+					
 
-                <ul class="site-menu main-menu js-clone-nav  d-lg-block" id="nav">
-                  <!-- id이용하여 이동  -->
-                  <li><a href="../recipe_index.do" id="recipe_link" class="nav-link"><img src="../img/header/recipe.png" height="40px"/></a></li>
-                  <li><a href="../foodvideo/foodvideo_index.jsp" id="video_link" class="nav-link"><img src="../img/header/foodvideo.png" height="40px"/></a></li>
-                  <li><a href="#recipegram-section" id="recipegram_link" class="nav-link"><img src="../img/header/recipegram.png" height="40px"/></a></li>
-                  <li><a href="../salething/salething_homeplus.jsp" id="sale_link" class="nav-link"><img src="../img/header/salething.png" height="40px"/></a></li>
-                  <li><a href="../chat/change_index.jsp" id="chat_link" class="nav-link"><img src="../img/header/chat.png" height="40px"/></a></li>
-                  
-                  <li><button class="nav-link" id="login" style="border:none; color:#65737e;">로그인</button></li>
-                  <li><button class="nav-link" id="signup" style="border:none; color:#65737e;">회원가입</button></li>
-                  
-                </ul>
+                  <!-- 로그인 시   -->
+					<sec:authorize access="isAuthenticated()">
+					
+						
+						<!-- 관리자시...  -->                  
+                   		<sec:authorize access="hasRole('ROLE_ADMIN')">
+							<li>
+								<a href="/admin_index"class="nav-link" id="nickname" style="border:none; color:#65737e; background:none"> 
+									<sec:authentication property="principal.member.user_nickname"/> 
+									
+									
+								</a>
+							</li>
+	                  		<li>
+								<form action = "/customLogout" method = "post">   
+									<input type = "hidden" name = "${_csrf.parameterName }" value = "${_csrf.token }"/>               		
+	                  				<button class="nav-link" id="logout" style="border:none; color:#65737e; background:none">로그아웃</button>
+	                  			</form>
+	                  		</li>
+						</sec:authorize> 
+						
+						<!-- 일반 user -->
+						<sec:authorize access="!hasRole('ROLE_ADMIN')">
+											<li>
+								<a href="/myPage_index"class="nav-link" id="nickname" style="border:none; color:#65737e; background:none">
+									<sec:authentication property="principal.member.user_nickname"/>
+									
+								</a>
+							</li>
+	                  		<li>
+								<form action = "/customLogout" method = "post">   
+									<input type = "hidden" name = "${_csrf.parameterName }" value = "${_csrf.token }"/>               		
+	                  				<button class="nav-link" id="logout" style="border:none; color:#65737e; background:none">로그아웃</button>
+	                  			</form>
+	                  		</li>
+						</sec:authorize>
+					</sec:authorize>
+					
+					<!-- 비로그인 시  -->
+					<sec:authorize access="isAnonymous()">
+						
+						
+						<li><button class="nav-link" id="login" style="border:none; color:#65737e; background:none">로그인</button></li>
+                  		<li><button class="nav-link" id="signup" style="border:none; color:#65737e; background:none">회원가입</button></li>
+                
+					</sec:authorize>
+                  </ul>
               </nav>
           
             
@@ -274,7 +319,7 @@ window.onclick = function(event) {
 $("#login_button").on("click", function(e){
 
 	e.preventDefault();
-	$("form").submit();
+	$("#login_form").submit();
 });
 
 //로그인 페이지에 있는 회원가입 버튼 - 이메일 인증 페이지로 이동
@@ -287,10 +332,83 @@ $("#sign_up_btn").on("click", function(e){
 
 //이메일 인증 페이지에 있는 다음 버튼 - 회원가입이지로 이동 
 $("#signup_btn").on("click", function(e){
+	var cnt =0;
+	$.ajax({
+             type: "get",
+             url: "/mail/move?",
+             contentType:'application/json; charset=UTF-8',
+             dataType:'json',
+            
+             success: function(data) {
+            	 console.log(data);
+            	 //map
+            	 $.each(data, function(idx, val) {
+            		 //list
+            		 //$('#user_username').val(idx);
+            		
+            		 $.each(val, function(val1, val2) {
+                		 
+            			//val1 : index
+            			//val2 : value
+            			console.log(idx);
+            			console.log("val1" + val1); 
+            			console.log("val2" + val2); // val1:1 = > 인증번호 체크  1 : ok // val1:0 => email 중복확인   0 : ok
+            	
+            			
+            			//email 중복....
+            			if(val1 == 0){
+            				if(val2 != 0){
+								
+                				$("#email_chk_text").css("display", "inline");
+                				console.log("return1 : " + val2);
+                				
+                				
+    							return false;
+            				}
+            				console.log("cnt : " + cnt);
+            				cnt++;
+            			}
+            			//임시코드 일치하지 않음.... 
+            			else if(val1 == 1){
+            				if(val2 != 1){
+            					$("#joinCode_chk_text").css("display", "inline");
+                				console.log("return2 : " + val2);
+                				
+                				return false;
+                			}
+            				console.log("cnt : " + cnt);
+            				cnt++
+            			}
+            			if(cnt == 2){
+            				console.log("return3 : " + val1 + ", " + val2);
+            				console.log("cnt : " + cnt);
+            				
+            				$('#user_username').val(idx);
+            				
+            				modal_email.style.display = "none";
+            				modal_sign_up.style.display = "block";
+            				
+            				//return false;
+            			}
+        
+            			
 
-	modal_email.style.display = "none";
-	modal_sign_up.style.display = "block";
+
+            		
+            		 }); 
+            		 
+            	});
+            	 
+             }, error: function() {
+                 alert('ajax err');
+             }
+         });
+	/* modal_email.style.display = "none";
+	modal_sign_up.style.display = "block"; */
+    
 });
+
+
 
 $('#recipe_link').tooltip({title:"레시피",placement:"bottom"});
 $('#video_link').tooltip({title:"요리 영상",placement:"bottom"});

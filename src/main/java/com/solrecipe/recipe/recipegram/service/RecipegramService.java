@@ -19,8 +19,8 @@ public interface RecipegramService {
 	public void insertRecipegram_img(List<String> list, RecipegramVO recipegramvo);
 	public void insertRecipegram_hash(String[] hashTag, RecipegramVO recipegramvo);
 	public List<RecipegramVO> rgListWithSearch(RecipegramCriteria cri);
-	public List<RecipegramVO> getRecipegramLike();
-	public List<RecipegramVO> getMoreNewRecipegram(int startNum);
+	public List<RecipegramVO> getRecipegramLike(RecipegramCriteria cri);
+	//public List<RecipegramVO> getMoreNewRecipegram(int startNum);
 	public int insertLikecnt(RecipegramVO recipegramvo);
 	public int insertLike(Recipegram_likeVO likevo);
 	public int deleteLikecnt(RecipegramVO recipegramvo);
@@ -36,4 +36,12 @@ public interface RecipegramService {
 	public int deleteRereply(int recipegram_rereply_num);
 	public List<RecipegramVO> contList(int recipegram_num);
 	public List<ImgVO> imgList(int recipegram_num);
+	public List<RecipegramVO>  getRownum(RecipegramCriteria cri, int startNum);
+	public List<RecipegramVO>  getlikeRownum(int startNum);
+	public List<RecipegramVO> rguserList(String user_nickname);
+	public int deleteRecipegram(int recipegram_num);
+	public List<RecipegramVO> getmodifyRecipegram(int recipegram_num);
+
+	public int updateRecipegram(RecipegramVO recipegramvo);
+	public void updateRecipegram_hash(String[] hashTag, RecipegramVO recipegramvo);
 }

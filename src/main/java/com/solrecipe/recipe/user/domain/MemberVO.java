@@ -1,5 +1,6 @@
 package com.solrecipe.recipe.user.domain;
 
+import java.sql.Date;
 import java.sql.Timestamp;
 import java.util.List;
 
@@ -16,10 +17,12 @@ public class MemberVO {
 	
 	String user_intro;
 	String user_img;
-	Timestamp firstdate;
-	Timestamp updatedate;
+	Date firstdate;
+	Date updatedate;
+	int isopen;
+
 	private boolean enabled;
 	
 	private List<AuthVO> authList;
-
+	
 }
