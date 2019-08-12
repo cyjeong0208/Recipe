@@ -20,4 +20,8 @@ public interface UserMapper {
 	Integer chkUsername(String user_username);
 	Integer chkName(String name);
 	Integer newPw(@Param(value="user_username") String user_username, @Param(value="user_pw") String user_pw);
+	Integer chkKakaouser(String user_username);
+	int kakaoMember(MemberVO membervo);
+	
+	
 }

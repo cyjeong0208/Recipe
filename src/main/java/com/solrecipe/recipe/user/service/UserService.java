@@ -19,5 +19,7 @@ public interface UserService{
 	public int chkNickname(String user_nickname);
 	public int chkName(String user_username, String user_name);
 	public int newPw(String user_username, String user_pw);
+	public int chkKakaouser(String kakao_user);
+	public int kakaoMember(MemberVO memberVO);
 	
 }

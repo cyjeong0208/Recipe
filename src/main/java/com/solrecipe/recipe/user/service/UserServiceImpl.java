@@ -115,5 +115,27 @@ public class UserServiceImpl implements UserService{
 		}
 		return 0;
 	}
+
+	@Override
+	public int chkKakaouser(String kakao_user) {
+		// TODO Auto-generated method stub
+		Integer chkKakao = userMapper.chkKakaouser(kakao_user);
+		
+		//없어엉  
+		if(chkKakao == null) {
+			return 0;
+		}
+		
+		return chkKakao;
+	}
+
+	@Override
+	public int kakaoMember(MemberVO memberVO) {
+		// TODO Auto-generated method stub
+		log.info("imply kakaousername : " + memberVO.getUser_username());
+		return userMapper.kakaoMember(memberVO);
+	}
+
+	
 	
 }

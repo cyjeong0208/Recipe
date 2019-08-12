@@ -20,6 +20,8 @@ public class MemberVO {
 	Date firstdate;
 	Date updatedate;
 	int isopen;
+	
+	int kakao_login;
 
 	private boolean enabled;
 	

@@ -13,6 +13,7 @@
 		<result property="isopen" column="isopen"/>
 		<result property="firstdate" column="firstdate"/>
 		<result property="updatedate" column="updatedate"/>
+		<result property="kakao_login" column="kakao_login"/>
 		<collection property="authList" resultMap="authMap">
 		</collection>
 		
@@ -60,11 +61,18 @@
 	
 	<insert id="insertMember" parameterType="com.solrecipe.recipe.user.domain.MemberVO">
 		<selectKey keyProperty="user_num" resultType="int" order="BEFORE">
-	    	select user_num FROM user_tb WHERE user_username = #{user_username}
+	    	select user_num FROM user_tb WHERE user_username = #{user_username, jdbcType = VARCHAR}
 	  	</selectKey>
 	
-		INSERT INTO user_detail_tb (user_num, user_name, user_nickname, firstdate, updatedate) 
-			VALUES (#{user_num}, #{user_name}, #{user_nickname}, #{firstdate}, #{updatedate})
+		INSERT INTO user_detail_tb (user_num, user_name, user_nickname, firstdate, updatedate, kakao_login) 
+			VALUES (#{user_num}, #{user_name}, #{user_nickname}, #{firstdate}, #{updatedate}, #{kakao_login})
+	</insert>
+	
+	<insert id="kakaoMember" parameterType="com.solrecipe.recipe.user.domain.MemberVO">
+		<selectKey keyProperty="user_num" resultType="int" order="BEFORE">
+		    select NVL(MAX(user_num+1),1) FROM user_tb
+		  </selectKey>
+		INSERT INTO user_tb (user_num, user_username, user_pw) VALUES (#{user_num}, #{user_username}, #{user_pw})
 	</insert>
 	
 	<insert id="insertAuth" parameterType="com.solrecipe.recipe.user.domain.AuthVO">
@@ -73,7 +81,7 @@
 	  	</selectKey> -->
 	
 		INSERT INTO user_auth_tb (user_username, user_auth) 
-			VALUES (#{user_username}, #{user_auth})
+			VALUES (#{user_username, jdbcType = VARCHAR}, #{user_auth, jdbcType = VARCHAR})
 	</insert>
 	<select id="confirmUser" parameterType="String" resultType="int">
 		select count(*) from user_tb where user_username=#{user_username}
@@ -126,6 +134,11 @@
 		update  user_tb set user_pw = #{user_pw}
 									
 						where user_username = #{user_username} 
+	
+	</select>
+	<select id="chkKakaouser" resultType="Integer">
+		select user_num from user_tb
+		where user_username = #{user_username}
 	
 	</select>
 </mapper>
