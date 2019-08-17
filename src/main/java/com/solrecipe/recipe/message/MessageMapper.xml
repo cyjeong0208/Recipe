@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.solrecipe.recipe.message.MessageMapper">
+
+	<resultMap type="MessageVO" id="messageResultMap">
+		<result property="message_num" column="message_num" />
+		<result property="sender_num" column="sender_num" />
+		<result property="recver_num" column="recver_num" />
+		<result property="send_content" column="send_content" />
+		<result property="recv_content" column="recv_content" />
+		<result property="sendDate" column="sendDate" />
+		<result property="recvSendDate" column="recvSendDate" />
+		<result property="isRecvSend" column="isRecvSend" />
+	</resultMap>
+	
+	<select id="getList" resultMap ="messageResultMap">
+	select * from(
+		select message_num, sender_num, recver_num, send_content, recv_content, sendDate, recvSendDate, isRecvSend, rownum r 
+		from(
+			select * 
+			from message_tb
+			where sender_num = #{user_num} or recver_num = #{user_num}
+			order by sendDate desc)
+		)
+	where r >= #{startNum} and r <![CDATA[<=]]> #{endNum}
+		<!--  얘는 아래처럼 처리하면 rownum이 들쑥날쑥 해 지는데, 왜 그러는지는 모르겠다...쉬벌
+				order by sendDate desc)
+			where rownum <![CDATA[<=]]> #{endNum} )
+		where r >= #{startNum} 
+		-->
+	</select>
+
+	<select id="getNickname" resultType = "String">
+		select user_nickname from user_detail_tb where user_num = #{user_num}
+	</select>
+	
+	<insert id="sendMsg">
+		insert into message_tb(message_num, sender_num, recver_num, send_content)
+		values(message_num_seq.nextVal, #{sender_num}, #{recver_num}, #{send_content})
+	</insert>
+	
+	<select id="getDetailMsg" resultMap = "messageResultMap">
+		select * from message_tb where message_num = #{message_num}
+	</select>
+
+	<insert id="addMessage">
+		insert into receivemsg_tb(receivemsg_num,
+		message_content, firstdate, recver_num, isread_num)
+		values(
+		#{receivemsg_num},
+		#{recevMessage_content},
+		sysdate,
+		#{recver_num},
+		1
+		)
+	</insert>
+	
+	<update id="answerMsg">
+		update message_tb set recv_content = #{recv_content}, isRecvSend = #{isRecvSend} where message_num = #{message_num}
+	</update>
+	<!-- <insert id="userSendMsg" parameterType="com.solrecipe.recipe.message.messageVO"> 
+		insert into sendmsg_tb(sendmsg_num, message_content, firstdate, sender_num) 
+		values( (select NVL(max(sendmsg_num) + 1, 0) from sendmsg_tb), #{message_content}, 
+		sysdate, #{sender_num} ) </insert> -->
+
+</mapper>

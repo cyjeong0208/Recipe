@@ -1,0 +1,395 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.solrecipe.recipe.admin.AdminMapper">
+	<resultMap type="memberVO" id="memberResultMap">
+		<result property="user_num" column="user_num" />
+		<result property="user_username" column="user_username" />
+		<result property="user_nickname" column="user_nickname" />
+		<result property="user_name" column="user_name" />
+		<result property="user_warning" column="user_warning" />
+		<result property="user_black" column="user_black" />
+	</resultMap>
+	<resultMap type="FoodVideoVO" id="fvResultMap">
+		<result property="video_num" column="video_num" />
+		<result property="video_id" column="video_id" />
+		<result property="video_playlist" column="video_playlist" />
+		<result property="video_title" column="video_title" />
+		<result property="video_content" column="video_content" />
+		<result property="video_thumbnail" column="video_thumbnail" />
+		<result property="firstdate" column="firstdate" />
+		<result property="video_mark_cnt" column="video_mark_cnt" />
+	</resultMap>
+
+	<resultMap type="Recipe_basicVO" id="recipeResultMap">
+		<result property="recipe_num" column="recipe_num" />
+		<result property="recipe_title" column="recipe_title" />
+		<result property="recipe_img" column="recipe_img" />
+		<result property="firstdate" column="firstdate" />
+		<result property="updatedate" column="updatedate" />
+		<result property="recipe_food_main" column="recipe_food_main" />
+		<result property="recipe_food_suv" column="recipe_food_suv" />
+		<result property="excel" column="excel" />
+		<result property="user_num" column="user_num" />
+		<result property="user_nickname" column="user_nickname" />
+	</resultMap>
+
+	<sql id="SELECT_COOKING_TB">
+		<choose>
+			<when test="excel == 1">EXCEL_RECIPE_COOKING_TB</when>
+			<otherwise>RECIPE_COOKING_TB</otherwise>
+		</choose>
+	</sql>
+
+	<select id="getTotalCnt" resultType="int">
+		select count(*) from
+		<choose>
+			<when test='whichPage.equals("fv")'>
+				food_video_tb
+			</when>
+			<when test='whichPage.equals("recipe")'>
+				(select * from RECIPE_BASIC_TB union all select * from
+				EXCEL_RECIPE_BASIC_TB)
+			</when>
+			<when test='whichPage.equals("users")'>
+				(select mem.user_num, mem.user_username,
+				mem_dt.user_nickname, mem_dt.user_name, bl.user_warning,
+				bl.user_black
+				from user_detail_tb mem_dt left outer join user_tb mem
+				on mem_dt.user_num = mem.user_num
+				left outer join user_blackList_tb bl on mem_dt.user_num = bl.user_num)
+			</when>
+			<when test='whichPage.equals("message")'>
+				message_tb
+			</when>
+		</choose>
+	</select>
+
+	<select id="getSearchedCnt" resultType="int">
+		select count(*) from
+		<choose>
+			<when test='whichPage.equals("fv")'>
+				food_video_tb
+				where video_title like '%'||#{keyword}||'%' or video_content like
+				'%'||#{keyword}||'%' or video_num like '%'||#{keyword}||'%'
+			</when>
+			<when test='whichPage.equals("recipe")'>
+				(select * from RECIPE_BASIC_TB union all select * from
+				EXCEL_RECIPE_BASIC_TB)
+				where recipe_title like '%'||#{keyword}||'%' or recipe_num like
+				'%'||#{keyword}||'%'
+			</when>
+			<when test='whichPage.equals("users")'>
+				(select mem.user_num, mem.user_username,
+				mem_dt.user_name, mem_dt.user_nickname, bl.user_warning,
+				bl.user_black
+				from user_detail_tb mem_dt left outer join user_tb mem
+				on mem_dt.user_num = mem.user_num
+				left outer join user_blackList_tb bl on mem_dt.user_num = bl.user_num)
+				where user_num like'%'||#{keyword}||'%' or user_username like
+				'%'||#{keyword}||'%' or user_name
+				like '%'||#{keyword}||'%' or
+				user_nickname like '%'||#{keyword}||'%'
+			</when>
+		</choose>
+	</select>
+
+	<!-- recipe_basic_tb를 user_tb, user_detail_tb와 join, 동일하게 excel_recipe_basic_tb도 
+		join 한 후에 두 select문을 union -->
+	<!-- 직접 만든 레시피가 시간순으로 정렬되서 먼저 배치, 그 다음으로 엑셀 레시피가 정렬되서 배치 -->
+	<!-- <select id="getRecipeList" resultMap="recipeResultMap"> select * from 
+		(select RECIPE_NUM, RECIPE_TITLE, USER_NUM, USER_NICKNAME, UPDATEDATE, EXCEL, 
+		rownum r from (select * from (SELECT E.RECIPE_NUM, E.RECIPE_TITLE, E.USER_NUM, 
+		D.USER_NICKNAME, E.UPDATEDATE, E.EXCEL FROM RECIPE_BASIC_TB E, USER_TB U, 
+		USER_DETAIL_TB D WHERE E.USER_NUM = U.USER_NUM AND U.USER_NUM = D.USER_NUM 
+		ORDER BY E.UPDATEDATE DESC) UNION ALL select * from (SELECT E.RECIPE_NUM, 
+		E.RECIPE_TITLE, E.USER_NUM, D.USER_NICKNAME, E.UPDATEDATE, E.EXCEL FROM EXCEL_RECIPE_BASIC_TB 
+		E, USER_TB U, USER_DETAIL_TB D WHERE E.USER_NUM = U.USER_NUM AND U.USER_NUM 
+		= D.USER_NUM ORDER BY E.UPDATEDATE DESC) ) where rownum <![CDATA[<= ]]> #{startNum}+15 
+		) where r > #{startNum} </select> -->
+
+	<!-- 수정 190807 , 상언 -->
+	<select id="getRecipeList" resultMap="recipeResultMap">
+		select RECIPE_NUM, RECIPE_TITLE, USER_NUM, USER_NICKNAME,
+		FIRSTDATE,UPDATEDATE, EXCEL from
+		(
+		select RECIPE_NUM, RECIPE_TITLE, USER_NUM, USER_NICKNAME,
+		FIRSTDATE,UPDATEDATE, EXCEL,rownum rn from
+		(
+		select * from (select a.*,b.user_nickname from recipe_basic_tb a inner join
+		user_detail_tb b ON a.user_num = b.user_num order by a.recipe_num
+		desc)
+		UNION ALL
+		select * from (select a.*,b.user_nickname from excel_recipe_basic_tb a inner
+		join user_detail_tb b ON a.user_num = b.user_num order by a.recipe_num
+		desc)
+		) where rownum <![CDATA[<=]]>
+		#{startNum}+15
+		)
+		where rn <![CDATA[ > ]]>
+		#{startNum}
+	</select>
+
+	<!-- <select id="getSearchedRecipeList" resultMap="recipeResultMap"> select 
+		* from (select RECIPE_NUM, RECIPE_TITLE, USER_NUM, USER_NICKNAME, UPDATEDATE, 
+		EXCEL, rownum r from (select * from (select * from (SELECT E.RECIPE_NUM, 
+		E.RECIPE_TITLE, E.USER_NUM, D.USER_NICKNAME, E.UPDATEDATE, E.EXCEL FROM RECIPE_BASIC_TB 
+		E, USER_TB U, USER_DETAIL_TB D WHERE E.USER_NUM = U.USER_NUM AND U.USER_NUM 
+		= D.USER_NUM ORDER BY E.UPDATEDATE DESC) UNION ALL select * from (SELECT 
+		E.RECIPE_NUM, E.RECIPE_TITLE, E.USER_NUM, D.USER_NICKNAME, E.UPDATEDATE, 
+		E.EXCEL FROM EXCEL_RECIPE_BASIC_TB E, USER_TB U, USER_DETAIL_TB D WHERE E.USER_NUM 
+		= U.USER_NUM AND U.USER_NUM = D.USER_NUM ORDER BY E.UPDATEDATE DESC) ) where 
+		recipe_title like '%'||#{keyword}||'%' or recipe_num like '%'||#{keyword}||'%' 
+		or user_nickname like '%'||#{keyword}||'%' ) where rownum <![CDATA[<= ]]> 
+		#{startNum}+15 ) where r > #{startNum} </select> -->
+
+	<!-- 수정 190807 , 상언 -->
+	<select id="getSearchedRecipeList" resultMap="recipeResultMap">
+		select RECIPE_NUM, RECIPE_TITLE, USER_NUM, USER_NICKNAME,
+		FIRSTDATE,UPDATEDATE, EXCEL from
+		(
+		select RECIPE_NUM, RECIPE_TITLE, USER_NUM, USER_NICKNAME,FIRSTDATE,
+		UPDATEDATE, EXCEL,rownum rn from
+		(
+		select * from (select a.*,b.user_nickname from recipe_basic_tb a inner join
+		user_detail_tb b ON a.user_num = b.user_num order by a.recipe_num
+		desc)
+		UNION ALL
+		select * from (select a.*,b.user_nickname from excel_recipe_basic_tb a inner
+		join user_detail_tb b ON a.user_num = b.user_num order by a.recipe_num
+		desc)
+		) where (recipe_title like '%'||#{keyword}||'%' or recipe_num like
+		'%'||#{keyword}||'%' or user_nickname like '%'||#{keyword}||'%') and
+		rownum <![CDATA[ <= ]]>
+		#{startNum}+15
+		)
+		where rn  <![CDATA[ > ]]>
+		#{startNum}
+	</select>
+
+
+	<delete id="deleteRecipeBasic">
+		delete
+		from
+		<choose>
+			<when test='excel == 0'>
+				recipe_basic_tb
+			</when>
+			<when test='excel == 1'>
+				excel_recipe_basic_tb
+			</when>
+		</choose>
+		where recipe_num = #{recipe_num}
+	</delete>
+
+
+
+	<delete id="deleteRecipeCooking">
+		delete
+		from
+		<choose>
+			<when test='excel == 0'>
+				recipe_cooking_tb
+			</when>
+			<when test='excel == 1'>
+				excel_recipe_cooking_tb
+			</when>
+		</choose>
+		where recipe_num = #{recipe_num}
+	</delete>
+
+	<select id="getFoodVideoList" resultMap="fvResultMap">
+		select *
+		from (select video_num, video_title, firstdate, video_mark_cnt, rownum r
+		from (select *
+		from food_video_tb
+		order by firstdate desc
+		)
+		where rownum <![CDATA[<= ]]>
+		#{startNum}+15
+		)
+		where
+		r > #{startNum}
+	</select>
+
+	<select id="getSearchedFoodVideoList" resultMap="fvResultMap">
+		select *
+		from (select video_num, video_title, firstdate, video_mark_cnt, rownum r
+		from (select *
+		from food_video_tb
+		where video_title like '%'||#{keyword}||'%' or video_num like
+		'%'||#{keyword}||'%'
+		order by firstdate desc
+		)
+		where rownum <![CDATA[<= ]]>
+		#{startNum}+15
+		)
+		where
+		r > #{startNum}
+	</select>
+
+	<delete id="deleteFoodVideo">
+		delete from food_video_tb where video_num=#{videoNum}
+	</delete>
+
+
+
+
+
+
+	<select id="getChatRoomList"
+		resultType="com.solrecipe.recipe.chat.AdminChatRoomVO">
+		select
+		chatroom_num,chat_address,user_num,chat_title,firstdate,user_nickname,type
+		from (
+		select
+		chatroom_num,chat_address,user_num,chat_title,firstdate,user_nickname,type,
+		rownum rn from (
+		select
+		a.chatroom_num,a.chat_address,a.user_num,a.chat_title,a.firstdate,b.user_nickname,type
+		from
+		(
+
+		(select
+		chatroom_num,chat_address,user_num,chat_title,chat_status,firstdate,type
+		from change_tb z1 inner JOIN (select '물물교환' as type from dual) z2 ON
+		1=1)
+		UNION ALL
+		(select
+		chatroom_num,chat_address,user_num,chat_title,chat_status,firstdate,type
+		from with_tb y1 inner JOIN (select '공동구매' as type from dual) y2 ON
+		1=1)
+
+		) a INNER JOIN USER_DETAIL_TB b ON a.user_num = b.user_num where
+		a.chat_status = 0
+
+		order by a.firstdate desc ) where rownum <![CDATA[<= ]]>
+		#{startNum}+15 ) where rn > #{startNum}
+		<if test="keyword != null and !keyword.equals('')">
+			and REGEXP_LIKE(chat_title, #{keyword})
+		</if>
+	</select>
+
+	<select id="getChatRoomCnt" resultType="int">
+		select count(*) from (
+		(select
+		chatroom_num,chat_address,user_num,chat_title,chat_status,firstdate,type
+		from change_tb z1 inner JOIN (select '물물교환' as type from dual) z2 ON
+		1=1)
+		UNION ALL
+		(select
+		chatroom_num,chat_address,user_num,chat_title,chat_status,firstdate,type
+		from with_tb y1 inner JOIN (select '공동구매' as type from dual) y2 ON
+		1=1)
+		) where chat_status = 0
+		<if test="keyword != null and !keyword.equals('')">
+			and REGEXP_LIKE(chat_title, #{keyword})
+		</if>
+	</select>
+
+	<select id="getChattingList"
+		resultType="com.solrecipe.recipe.chat.AdminChatVO">
+		select a.CHAT_CONTENT,a.USER_NUM,b.user_nickname from
+		(
+		(select CHATROOM_NUM,CHAT_CONTENT,USER_NUM,firstdate,type from
+		change_chat_tb z1 inner JOIN (select '물물교환' as type from dual) z2 ON
+		1=1)
+		UNION ALL
+		(select CHATROOM_NUM,CHAT_CONTENT,USER_NUM,firstdate,type from with_chat_tb
+		y1 inner JOIN (select '공동구매' as type from dual) y2 ON 1=1)
+		) a inner
+		join user_detail_tb b ON a.user_num = b.user_num
+		where chatroom_num = #{chatroom_num} order by a.firstdate
+	</select>
+
+	<delete id="deleteChatRoom">
+		delete from
+		<choose>
+			<when test='type.equals("물물교환")'>change_tb</when>
+			<when test='type.eqauls("공동구매")'>with_tb</when>
+		</choose>
+		where chatroom_num = #{chatroom_num}
+	</delete>
+
+
+	<!-- admin 회원관리 -->
+	<select id="getUserList" resultMap="memberResultMap">
+		<!-- select mem.user_num, mem.user_username, mem_dt.user_nickname, mem_dt.user_name, 
+			mem_dt.user_warning, mem_dt.user_black from user_detail_tb mem_dt left outer 
+			join user_tb mem on mem_dt.user_num = mem.user_num order by mem_dt.user_num -->
+
+		select user_num, user_username, user_nickname, user_name,
+		user_warning, user_black
+		from(
+		select user_num, user_username, user_nickname, user_name, user_warning,
+		user_black, rownum r
+		from (select mem.user_num, mem.user_username, mem_dt.user_nickname,
+		mem_dt.user_name, black.user_warning, black.user_black
+		from user_detail_tb mem_dt left outer join user_tb mem on mem_dt.user_num
+		= mem.user_num
+		left outer join user_blackList_tb black on mem_dt.user_num =
+		black.user_num
+		order by mem_dt.user_num
+		)
+		where rownum <![CDATA[<= ]]>
+		#{startNum}+15
+		)
+		where r > #{startNum}
+
+	</select>
+
+	<select id="getSearchUserList" resultMap="memberResultMap">
+		select user_num, user_username, user_nickname, user_name,
+		user_warning, user_black
+		from(
+		select user_num, user_username, user_nickname, user_name, user_warning,
+		user_black, rownum r
+		from (select mem.user_num, mem.user_username, mem_dt.user_nickname,
+		mem_dt.user_name, bl.user_warning, bl.user_black
+		from user_detail_tb mem_dt left outer join user_tb mem on mem_dt.user_num
+		= mem.user_num
+		left outer join user_blackList_tb bl on mem_dt.user_num = bl.user_num
+		where mem.user_num like '%'||#{keyword}||'%' or mem.user_username like
+		'%'||#{keyword}||'%' or mem_dt.user_nickname
+		like '%'||#{keyword}||'%' or mem_dt.user_name like '%'||#{keyword}||'%'
+		<!-- order by mem_dt.user_num -->
+		)
+		where rownum <![CDATA[<= ]]>
+		#{startNum}+15
+		)
+		where r > #{startNum}
+	</select>
+
+	<update id="usersUpdate_black">
+		update user_blackList_tb set
+		user_black = 1 where user_num = #{user_num}
+	</update>
+
+	<update id="usersUpdate_black_cancel">
+		update user_blackList_tb
+		set user_black = user_black - 1 where user_num = #{user_num}
+	</update>
+
+	<update id="userUpdate_warning" >
+		update user_blackList_tb set user_warning = #{user_warning} where
+		user_num = #{user_num}
+		<!-- insert into user_blackList_tb (user_warning) set (#{user_warning}) 
+			where user_num = #{user_num} -->
+	</update>
+
+	<update id="user_blackOut_trg" >
+		create or replace trigger user_tb_trigger
+		after update on user_tb for each row
+		begin
+		update user_auth_tb
+		set user_username = to_char(#{user_num})
+		where user_username = #{user_username}
+		end
+		
+	</update>
+
+	<update id="user_blackOut" >
+		update user_tb set user_pw='null' where user_num = #{user_num}
+	</update>
+	
+</mapper>

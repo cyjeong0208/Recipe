@@ -1,0 +1,263 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  
+<mapper namespace="com.solrecipe.recipe.recipe.RecipeMapper">
+	
+	<resultMap type="Recipe_basicVO" id="basic_info">
+		<result property="recipe_num" column="recipe_num"/>
+		<result property="recipe_title" column="recipe_title"/>
+		<result property="recipe_img" column="recipe_img"/>
+		<result property="firstdate" column="firstdate"/>
+		<result property="updatedate" column="updatedate"/>
+		<result property="recipe_food_main" column="recipe_food_main"/>
+		<result property="recipe_food_suv" column="recipe_food_suv"/>
+		<result property="excel" column="excel"/>
+		<result property="user_num" column="user_num"/>
+		<result property="user_nickname" column="user_nickname"/>
+	</resultMap>
+	
+	<resultMap type="Recipe_CookingVO" id="cooking_info">
+		<result property="recipe_num" column="recipe_num"/>
+		<result property="cooking_num" column="cooking_num"/>
+		<result property="cooking_content" column="cooking_content"/>
+		<result property="cooking_img" column="cooking_img"/>
+	</resultMap>
+	
+	<sql id="SELECT_COOKING_TB">
+		 <choose> <when test="excel == 1">EXCEL_RECIPE_COOKING_TB</when><otherwise>RECIPE_COOKING_TB</otherwise></choose> 
+	</sql>
+	
+	
+	
+	<select id="getRecipeNum" resultType="long">
+		select nvl(max(recipe_num),0)+1 from recipe_basic_tb
+	</select>
+	
+	<select id="getAll_RECIPE_EXCEL" resultMap="basic_info">
+		select a.*,b.user_nickname from EXCEL_RECIPE_BASIC_TB a inner join user_detail_tb b ON a.user_num=b.user_num order by recipe_num desc
+	</select>
+
+	
+
+
+	<select id="getAll_RECIPE" resultMap="basic_info">
+		select a.*,b.user_nickname from RECIPE_BASIC_TB a inner join user_detail_tb b ON a.user_num = b.user_num order by recipe_num desc
+	</select>
+	
+	
+	<!-- XML에서 레시피 검색하기 -->
+	<select id="searchEXCEL_RECIPE" resultMap="basic_info">
+	select a.*,b.USER_NICKNAME from 
+	(
+		select RECIPE_NUM,RECIPE_TITLE,RECIPE_IMG,FIRSTDATE,UPDATEDATE,RECIPE_FOOD_MAIN,RECIPE_FOOD_SUV,EXCEL,USER_NUM from 
+		<choose>
+			<when test="ingredients.length != 0">
+				(select RECIPE_NUM,RECIPE_TITLE,RECIPE_IMG,FIRSTDATE,UPDATEDATE,RECIPE_FOOD_MAIN,RECIPE_FOOD_SUV,EXCEL,USER_NUM, 
+				regexp_count(recipe_food_main,
+				<foreach collection="ingredients" item="item" separator="||'|'||">
+					#{item}||','
+				</foreach>
+			<![CDATA[  ) count from EXCEL_RECIPE_BASIC_TB) where count > 0 order by count desc, recipe_num desc ]]>
+			</when>
+			<!-- 만약 자료가 비어있는 배열이면 전체 검색을 한다. -->
+			<otherwise>
+			 EXCEL_RECIPE_BASIC_TB order by recipe_num desc
+			</otherwise>
+		</choose>
+	)
+	a inner join user_detail_tb b ON a.user_num = b.user_num	
+	</select>
+	
+	<!-- 레시피 검색하기 -->
+	<select id="search_RECIPE" resultMap="basic_info">
+	select a.*,b.USER_NICKNAME from 
+	(
+		select RECIPE_NUM,RECIPE_TITLE,RECIPE_IMG,FIRSTDATE,UPDATEDATE,RECIPE_FOOD_MAIN,RECIPE_FOOD_SUV,EXCEL,USER_NUM from 
+		<choose>
+			<when test="ingredients.length != 0">
+				(select RECIPE_NUM,RECIPE_TITLE,RECIPE_IMG,FIRSTDATE,UPDATEDATE,RECIPE_FOOD_MAIN,RECIPE_FOOD_SUV,EXCEL,USER_NUM, 
+				regexp_count(recipe_food_main,
+				<foreach collection="ingredients" item="item" separator="||'|'||">
+					#{item}||','
+				</foreach>
+			<![CDATA[  ) count from RECIPE_BASIC_TB) where count > 0 order by count desc, recipe_num desc ]]>
+			</when>
+			<!-- 만약 자료가 비어있는 배열이면 전체 검색을 한다. -->
+			<otherwise>
+			 RECIPE_BASIC_TB order by recipe_num desc
+			</otherwise>
+		</choose>
+	)
+	a inner join user_detail_tb b ON a.user_num = b.user_num	
+	</select>
+	
+	
+	
+	
+	<!-- 
+	create SEQUENCE recipeNum_seq
+ 	INCREMENT BY 1  NOCYCLE NOCACHE;
+	 -->
+	
+	<!-- recipe_basic_tb에 넣어야할 값들 : RECIPE_NUM, RECIPE_TITLE, RECIPE_IMG, FIRSTDATE, UPDATEDATE, RECIPE_FOOD_MAIN, RECIPE_FOOD_SUV,EXCEL -->
+	<insert id="insertRecipe">
+		<selectKey keyProperty="recipe_num" resultType="long" order="BEFORE">
+			select RECIPENUM_SEQ.nextval from dual			
+		</selectKey>
+		insert into recipe_basic_tb 
+		VALUES(#{recipe_num},#{recipe_title},
+			SUBSTR(#{recipe_img},1,(INSTR(#{recipe_img},'.',-1)-1))||#{recipe_num}||'.'||
+			SUBSTR(#{recipe_img},(INSTR(#{recipe_img},'.',-1)+1))
+			,sysdate,sysdate,#{recipe_food_main},#{recipe_food_suv},#{excel},#{user_num})
+	</insert>
+	
+	
+	<!-- recipe_cooking_tb에 넣어야할 값들: RECIPE_NUM,COOKING_NUM,COOKING_CONTENT,COOKING_IMG -->
+	<insert id="insertCooking">
+		
+		insert into recipe_cooking_tb 
+		values(#{recipe_num},#{cooking_num},#{cooking_content},#{cooking_img})
+		
+	</insert>
+	
+	<select id="getRecipeDetail" resultMap="basic_info">
+		select a.*,b.user_nickname from 
+		<choose>
+			<when test="excel==1">	
+				EXCEL_RECIPE_BASIC_TB  a 
+			</when>
+			<otherwise>
+				RECIPE_BASIC_TB  a 
+			</otherwise>
+		</choose>
+		 inner join user_detail_tb b ON a.user_num = b.user_num where a.recipe_num = #{recipe_num} 
+		<!-- where recipe_num = #{recipe_num} -->
+	</select>
+	
+	
+	<select id="getCookingDetail" resultMap="cooking_info">
+		select recipe_num,cooking_num,cooking_content,cooking_img  from 
+		<choose>
+			<when test="excel==1">	
+				EXCEL_RECIPE_COOKING_TB  
+			</when>
+			<otherwise>
+				RECIPE_COOKING_TB 
+			</otherwise>
+		</choose>
+		where recipe_num = #{recipe_num} order by cooking_num
+	</select>
+	
+	<select id="getUserNickName" resultType="string">
+		select a.user_nickname from user_detail_tb a inner join USER_TB b ON a.user_num = b.user_num 
+ 		where b.user_username = #{user_username}
+	</select>
+	
+	
+	
+	<update id="updateRecipeBasic">
+		update 
+		<choose>
+			<when test="excel==1">	
+				EXCEL_RECIPE_BASIC_TB  
+			</when>
+			<otherwise>
+				RECIPE_BASIC_TB 
+			</otherwise>
+		</choose>
+		set 
+			
+			recipe_title = #{recipe_title},
+			updatedate = sysdate,
+			recipe_food_main = #{recipe_food_main}
+			<if test="recipe_food_suv != null and !recipe_food_suv.equals('')">
+				,recipe_food_suv = #{recipe_food_suv} 
+			</if>
+		where recipe_num = #{recipe_num}
+	</update>
+	
+	
+	<update id="updateRecipeCooking">
+		merge into <include refid="SELECT_COOKING_TB" /> a
+		using dual on ( cooking_num = #{vo.cooking_num} and recipe_num = #{vo.recipe_num})
+		when MATCHED THEN
+		update set cooking_content = #{vo.cooking_content}
+		where 0 = (select count(*) from <include refid="SELECT_COOKING_TB" /> where cooking_num = #{vo.cooking_num} and recipe_num = #{vo.recipe_num} and to_char(cooking_content) = #{vo.cooking_content})
+		when not matched then 
+		<choose>
+			<when test="vo.cooking_img != null and !vo.cooking_img.equals('')">
+				insert values(#{vo.recipe_num},#{vo.cooking_num}, #{vo.cooking_content} ,#{vo.cooking_img})
+			</when>
+			<otherwise>
+				insert values(#{vo.recipe_num},#{vo.cooking_num}, #{vo.cooking_content} ,NULL)
+			</otherwise>
+		</choose>
+	</update>
+	
+	
+	<!-- 찜하기 관련 -->
+	<insert id="insertMarkRecipe">
+		<selectKey keyProperty="markrecipe_num" resultType="int" order="BEFORE">
+			select MARKRECIPE_SEQ.nextval from dual
+		</selectKey>
+		insert into markrecipe_tb values(#{markrecipe_num},#{user_num},sysdate,#{excel},#{recipe_num})
+	</insert>
+	
+	
+	<delete id="deleteMarkRecipe">
+		delete from markrecipe_tb where USER_NUM = #{user_num} and EXCEL = #{excel} and RECIPE_NUM = #{recipe_num}
+	</delete>
+	
+	<select id="selectUserMarkRecipe" resultType="com.solrecipe.recipe.recipe.Recipe_MarkVO">
+		select * from markrecipe_tb where user_num = #{user_num}
+	</select>
+	
+	<select id="getUserNumById" resultType="int">
+		select user_num from user_tb where user_username = #{user_id}
+	</select>
+	
+	
+	<!-- 관수가 추가해준 거 -->
+	<delete id="deleteRecipeBasic">
+		delete from <choose><when test="excel == 1">EXCEL_RECIPE_BASIC_TB</when><when test="excel == 0">RECIPE_BASIC_TB</when></choose> where recipe_num = #{recipe_num}
+	</delete>
+	
+	
+	<!-- 레시피 수정용 -->
+	<delete id="deleteRecipeCooking">
+		delete 
+		from 
+		<choose>
+			<when test="excel==1">	
+				EXCEL_RECIPE_COOKING_TB  
+			</when>
+			<otherwise>
+				RECIPE_COOKING_TB
+			</otherwise>
+		</choose>
+		where recipe_num = #{recipe_num}		
+	</delete>
+	
+	
+	
+	<!-- excel_recipe_basic_tb에서 바꿀 값들 : RECIPE_TITLE, RECIPE_IMG, FIRSTDATE, UPDATEDATE, RECIPE_FOOD_MAIN, RECIPE_FOOD_SUV  -->
+	<!-- <update id="modifyRecipe">
+		update 
+		<choose>
+			<when test="excel==1">	
+				excel_recipe_basic_tb
+			</when>
+			<otherwise>
+				recipe_basic_tb
+			</otherwise>
+		</choose>
+		set recipe_title=#{recipe_title}, recipe_img=#{recipe_img}, updatedate=sysdate, recipe_food_main=#{recipe_food_main}, recipe_food_suv=#{recipe_food_sub}
+		where recipe_num = #{recipe_num}
+	</update>
+	 -->
+	
+	
+	
+</mapper>

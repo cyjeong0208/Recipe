@@ -1,7 +1,6 @@
 package com.solrecipe.recipe.user.domain;
 
 import java.sql.Date;
-import java.sql.Timestamp;
 import java.util.List;
 
 import lombok.Data;
@@ -19,6 +18,10 @@ public class MemberVO {
 	String user_img;
 	Date firstdate;
 	Date updatedate;
+	
+	int user_black;
+	int user_warning;
+	
 	int isopen;
 	
 	int kakao_login;

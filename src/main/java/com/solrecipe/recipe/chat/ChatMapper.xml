@@ -1,0 +1,286 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.solrecipe.recipe.chat.ChatMapper">
+	
+	<resultMap type="memberVO" id="memberResultMap">
+		<result property="user_num" column="user_num"/>
+		<result property="user_nickname" column="user_nickname"/>
+	</resultMap>
+	<resultMap type="ChatRoomVO" id="chatResultMap">
+		<result property="chatroom_num" column="chatroom_num" />
+		<result property="chat_title" column="chat_title" />
+		<result property="chat_address" column="chat_address" />
+		<result property="chat_curmember" column="chat_curmember" />
+		<result property="chat_maxmember" column="chat_maxmember" />
+		<result property="chat_status" column="chat_status" />
+		<result property="firstdate" column="firstdate" />
+		<collection property="memberVO" resultMap="memberResultMap"/>
+	</resultMap>
+	
+	<sql id="SELECT_TABLE">
+		<choose> <when test="select==0">change_tb </when><otherwise>with_tb </otherwise></choose>
+	</sql>
+	
+	<sql id="SELECT_USER_TABLE">
+		<choose> <when test="select==0">change_user_tb </when><otherwise>with_user_tb </otherwise></choose>
+	</sql>
+	
+	<sql id="SELECT_CHAT_TABLE">
+		<choose> <when test="select==0">change_chat_tb </when><otherwise>with_chat_tb </otherwise></choose>
+	</sql>
+	
+	
+	<!-- 관수 -->
+	
+	<select id="getChatList" resultMap="chatResultMap">
+		
+		select *
+		from
+			(select chatRoom_num, chat_title, chat_address, chat_curMember, chat_maxMember, 
+			chat_status, firstdate, user_nickname, rownum r
+			from 
+				(select c.chatRoom_num, c.chat_title, c.chat_address, c.chat_curMember, c.chat_maxMember, 
+				c.chat_status, c.firstdate, d.user_nickname
+				from	
+                    <choose>
+					    <when test='type == 0'>
+					      change_tb c, user_tb u, user_detail_tb d
+					    </when>
+					    <otherwise>
+					      with_tb c, user_tb u, user_detail_tb d
+					    </otherwise>
+			  		</choose>
+                where c.user_num = u.user_num and
+					u.user_num = d.user_num
+                order by firstdate desc)
+            where rownum <![CDATA[< ]]> #{startNum}+15
+            )
+		where
+			r >= #{startNum} 
+			<choose>
+				<when test="localSearch != null and titleSearch != null">
+					and REGEXP_LIKE (chat_address, #{localSearch}) and REGEXP_LIKE(chat_title,#{titleSearch})
+				</when>
+				<when test="localSearch != null and titleSearch == null">
+					and REGEXP_LIKE (chat_address, #{localSearch}) 
+				</when>
+				<when test="localSearch == null and titleSearch != null">
+					and REGEXP_LIKE(chat_title,#{titleSearch})
+				</when>
+			</choose>
+	</select>
+	
+	
+	<select id="getTotalCnt" resultType="int">
+		select count(*) from 
+		<choose>
+		    <when test='value==0'>
+		       change_tb
+		    </when>
+		    <otherwise>
+		      with_tb
+		    </otherwise>
+  		</choose>
+	</select>
+	
+	
+	<select id="getMyVO" resultMap="memberResultMap">
+		select d.user_num, d.user_nickname  
+		from user_detail_tb d, user_tb u 
+		where d.user_num = u.user_num and u.user_username = #{id}
+	</select>
+	
+	
+	<!-- 상언 -->
+
+	<insert id="insertChangeChatRoom">
+		<selectKey keyProperty="chatroom_num" resultType="int" order="BEFORE">
+			select count(*)+1 from change_tb
+		</selectKey>
+		insert into change_tb(CHATROOM_NUM, CHAT_ADDRESS,CHAT_CURMEMBER,CHAT_MAXMEMBER, USER_NUM,CHAT_STATUS,CHAT_TITLE,FIRSTDATE)
+		values(#{chatroom_num}, #{chat_address},1, #{chat_maxmember},#{user_num},1, #{chat_title},sysdate)
+	</insert>
+	
+	<insert id="insertWithChatRoom">
+		<selectKey keyProperty="chatroom_num" resultType="int" order="BEFORE">
+			select count(*)+1 from with_tb
+		</selectKey>
+		insert into with_tb(CHATROOM_NUM, CHAT_ADDRESS,CHAT_CURMEMBER,CHAT_MAXMEMBER, USER_NUM,CHAT_STATUS,CHAT_TITLE,FIRSTDATE)
+		values(#{chatroom_num}, #{chat_address},1, #{chat_maxmember},#{user_num},1, #{chat_title},sysdate)
+	</insert>
+	
+	
+	<insert id="insertChatRoom">
+		<selectKey keyProperty="vo.chatroom_num" resultType="int" order="BEFORE">
+			select nvl(max(chatroom_num),0)+1 from 
+				<choose>
+					<when test="select==0">
+						change_tb
+					</when>
+					<otherwise>
+						with_tb
+					</otherwise>
+				</choose>
+		</selectKey>
+		insert into 
+			<choose>
+				<when test="select==0">
+					change_tb(CHATROOM_NUM, CHAT_ADDRESS,CHAT_CURMEMBER,CHAT_MAXMEMBER, USER_NUM,CHAT_STATUS,CHAT_TITLE,FIRSTDATE)
+				</when>
+				<otherwise>
+					with_tb(CHATROOM_NUM, CHAT_ADDRESS,CHAT_CURMEMBER,CHAT_MAXMEMBER, USER_NUM,CHAT_STATUS,CHAT_TITLE,FIRSTDATE)
+				</otherwise>
+			</choose>
+		values(#{vo.chatroom_num}, #{vo.chat_address},1, #{vo.chat_maxmember},#{vo.user_num},1, #{vo.chat_title},sysdate)
+	</insert>
+	
+	
+	
+	
+	<insert id="insertChangeUser">
+		insert into CHANGE_USER_TB(CHATROOM_NUM,USER_NUM)
+		values(#{chatroom_num},#{user_num})
+	</insert>
+	
+	
+	<insert id="insertWithUser">
+		insert into with_user_tb(CHATROOM_NUM,USER_NUM)
+		values(#{chatroom_num},#{user_num})
+	</insert>
+	
+	<insert id="insertUser">
+		insert into 
+			<choose>
+				<when test="select==0">
+					CHANGE_USER_TB(CHATROOM_NUM,USER_NUM)
+				</when>
+				<otherwise>
+					WITH_USER_TB(CHATROOM_NUM,USER_NUM)
+				</otherwise>
+			</choose>
+		select #{vo.chatroom_num},#{vo.user_num} from dual 
+		where 0 = 
+		(
+			select count(*) from change_user_tb 
+			where chatroom_num = #{vo.chatroom_num} and user_num=#{vo.user_num}
+		)
+	</insert>	
+	
+	
+	
+	<insert id="insertChangeChat">
+		<selectKey keyProperty="chat_num" resultType="int" order="BEFORE">
+			select nvl(MAX(CHAT_NUM),0)+1 from CHANGE_CHAT_TB
+		</selectKey> 
+		insert into CHANGE_CHAT_TB(CHAT_NUM,CHAT_CONTENT,CHATROOM_NUM,USER_NUM,FIRSTDATE)
+		values(#{chat_num},#{chat_content},#{chatroom_num},#{user_num},sysdate)
+	</insert>
+	
+	<insert id="insertWithChat">
+		<selectKey keyProperty="chat_num" resultType="int" order="BEFORE">
+			select nvl(MAX(chat_num,0))+1 from WITH_CHAT_TB
+		</selectKey>
+		insert into with_chat_tb(CHAT_NUM,CHAT_CONTENT,CHATROOM_NUM,USER_NUM,FIRSTDATE)
+		values(#{chat_num},#{chat_content},#{chatroom_num},#{user_num},sysdate)
+	</insert>
+	
+	
+	<insert id="insertChat">
+		<selectKey keyProperty="vo.chat_num" resultType="int" order="BEFORE">
+			select nvl(MAX(CHAT_NUM),0)+1 from 
+				<choose>
+					<when test="select == 0">
+						CHANGE_CHAT_TB
+					</when>
+					<otherwise>
+						WITH_CHAT_TB
+					</otherwise>
+				</choose>
+		</selectKey> 
+		insert into 
+			<choose>
+				<when test="select == 0">	
+					CHANGE_CHAT_TB(CHAT_NUM,CHAT_CONTENT,CHATROOM_NUM,USER_NUM,FIRSTDATE)
+				</when>
+				<otherwise>
+					WITH_CHAT_TB(CHAT_NUM,CHAT_CONTENT,CHATROOM_NUM,USER_NUM,FIRSTDATE)
+				</otherwise>
+			</choose>
+			
+		values(#{vo.chat_num},#{vo.chat_content},#{vo.chatroom_num},#{vo.user_num},sysdate)
+	</insert>
+	
+	
+	<delete id="deleteChatRoom">
+		delete from <choose>
+					<when test="select==0">CHANGE_TB</when>
+					<otherwise>WITH_TB</otherwise> 
+					</choose>
+					where chatroom_num = #{chatroom_num}
+	</delete>	
+	
+	
+	
+	<!-- 19.07.29 -->
+	<select id="getChatRoomUsers" resultType="com.solrecipe.recipe.user.domain.MemberVO">
+		select B.* from 
+			( select * from <choose> <when test="select==0">change_user_tb </when><otherwise>with_user_tb</otherwise> </choose> ) A  
+			INNER JOIN (select * from user_detail_tb) B ON A.USER_NUM = B.USER_NUM where a.chatroom_num = #{chatroom_num}
+	</select>
+	
+	<select id="getChatRoomDetail" resultType="com.solrecipe.recipe.chat.ChatRoomVO">
+		select * from <include refid="SELECT_TABLE" /> 
+		where chatroom_num = #{chatroom_num}
+	</select>
+	
+	
+	<update id="plusChatUserNum">
+		
+		<!-- <choose>
+		<when test="select==0">
+			update change_tb set chat_curmember=chat_curmember+1 where 
+			chat_curmember <![CDATA[ < (select chat_maxmember from change_tb where chatroom_num =#{chatroom_num}) and chatroom_num = #{chatroom_num}]]>
+		</when>
+		<otherwise>
+			update with_tb set chat_curmember=chat_curmember+1 where 
+			chat_curmember <![CDATA[ < (select chat_maxmember from with_tb where chatroom_num =#{chatroom_num}) and chatroom_num = #{chatroom_num}]]>
+		</otherwise>
+		</choose> -->
+		
+		update <include refid="SELECT_TABLE" /> set chat_curmember=chat_curmember+1 where 
+		chat_curmember <![CDATA[ < ]]> (select chat_maxmember from  <include refid="SELECT_TABLE" /> 
+		where chatroom_num =#{chatroom_num}) and chatroom_num = #{chatroom_num}
+		
+	</update>
+	
+	
+	
+	<!-- 19.08.02  채팅 방을 나갔을 때 필요한 sql 작성 -->
+	
+	
+	<update id="minusChatUserNum">
+		update <include refid="SELECT_TABLE" />  set CHAT_CURMEMBER = CHAT_CURMEMBER - 1 
+		where 1 != (select count(*) from <include refid="SELECT_TABLE" />  where CHAT_CURMEMBER = 0 and CHATROOM_NUM = #{chatroom_num})
+    	and CHATROOM_NUM = #{chatroom_num}
+	</update>
+	
+	
+	<delete id="deleteChatUser">
+		delete from <include refid="SELECT_USER_TABLE" /> 
+		where chatroom_num = #{chatroom_num} and user_num = #{user_num}
+	</delete>
+	
+	<select id="">
+	
+	</select>
+	
+	
+</mapper>
+
+
+
+
+

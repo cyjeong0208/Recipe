@@ -15,12 +15,9 @@
 	</resultMap>
 	
 	<select id="getMyVO" resultMap="memberResultMap">
-		 select d.user_num, d.user_nickname, d.user_name, p.user_intro, p.user_img, p.isopen
-		from user_tb u
-            left join user_detail_tb d on u.user_num = d.user_num
-            left join user_profile_tb p  on p.user_num = u.user_num
-        
-		where u.user_username = #{id}
+		select d.user_num, d.user_nickname, d.user_name, p.user_intro, p.user_img, p.isopen
+		from user_tb u, user_detail_tb d, user_profile_tb p 
+		where u.user_num = d.user_num and d.user_num = p.user_num and u.user_username = #{id}
 	</select>
 	
 </mapper>

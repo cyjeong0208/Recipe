@@ -55,8 +55,8 @@ public class KakaoController {
 	    session.setAttribute("chkKakao", chkKakao);
 	    
 	    
-	    System.out.println("session : " +session.getAttribute("chkkakao"));
-	    return "main";
+	    System.out.println("session : " +session.getAttribute("chkKakao"));
+	    return "redirect:/main";
 	}
 	
 	@RequestMapping(value="/kakao_logout")
@@ -65,7 +65,7 @@ public class KakaoController {
 	    session.removeAttribute("access_Token");
 	    session.removeAttribute("userId");
 	    session.removeAttribute("userNickname");
-	    return "main";
+	    return "redirect:/main";
 	}
 
 

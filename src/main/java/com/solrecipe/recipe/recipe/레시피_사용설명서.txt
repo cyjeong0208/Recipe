@@ -1,0 +1,16 @@
+com.solrecipe.recipe.recipe 사용 전 준비할 점
+
+1. Package Explorer -> Servers -> server.xml 을 열어서
+
+	<Host appBase="webapps" autoDeploy="true" name="localhost" unpackWARs="true"> ...</Host>라는 태그를 찾고 내부에 아래 두개의 태그를 추가
+
+	<Context docBase="C:\Project\Recipe_IMG\Main_IMG\" path="/Recipe_IMG/Main_IMG" reloadable="true"/>
+	<Context docBase="C:\Project\Recipe_IMG\Cooking_IMG\" path="/Recipe_IMG/Cooking_IMG" reloadable="true"/>
+	
+	
+	
+2.  C:\Project\Recipe_IMG\Main_IMG\ 
+	C:\Project\Recipe_IMG\Cooking_IMG\
+	
+	실제 컴퓨터 경로에 위 2개의 폴더 ( "Main_IMG" , "Cooking_IMG" ) 를 만들 것
+

@@ -18,7 +18,8 @@ public interface UserMapper {
 	int insertProfile(MemberVO membervo);
 	Integer chkNickname(String user_nickname);
 	Integer chkUsername(String user_username);
-	Integer chkName(String name);
+	Integer[] chkName(String name);
+	Integer chk(@Param(value="user_username") String user_username, @Param(value="user_name") String user_name);
 	Integer newPw(@Param(value="user_username") String user_username, @Param(value="user_pw") String user_pw);
 	Integer chkKakaouser(String user_username);
 	int kakaoMember(MemberVO membervo);

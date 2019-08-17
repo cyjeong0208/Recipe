@@ -36,12 +36,17 @@ public interface RecipegramService {
 	public int deleteRereply(int recipegram_rereply_num);
 	public List<RecipegramVO> contList(int recipegram_num);
 	public List<ImgVO> imgList(int recipegram_num);
-	public List<RecipegramVO>  getRownum(RecipegramCriteria cri, int startNum);
-	public List<RecipegramVO>  getlikeRownum(int startNum);
+	public List<RecipegramVO>  getRownum(String recipe_search, int startNum);
+	public List<RecipegramVO>  getlikeRownum(String recipe_search,int startNum);
+	public List<RecipegramVO>  getuserRownum(String user_nickname,int startNum);
 	public List<RecipegramVO> rguserList(String user_nickname);
 	public int deleteRecipegram(int recipegram_num);
 	public List<RecipegramVO> getmodifyRecipegram(int recipegram_num);
 
 	public int updateRecipegram(RecipegramVO recipegramvo);
 	public void updateRecipegram_hash(String[] hashTag, RecipegramVO recipegramvo);
+	
+	public List<RecipegramVO> main_rgList();
+	
+	public int rguserListcnt(String user_nickname);
 }

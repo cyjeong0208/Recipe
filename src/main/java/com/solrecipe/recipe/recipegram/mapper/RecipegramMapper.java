@@ -31,6 +31,8 @@ public interface RecipegramMapper {
 	
 	RecipegramVO getMoreNewRecipegram(int Num);
 	RecipegramVO getMoreLikeNewRecipegram(int Num);
+	RecipegramVO getMoreUserNewRecipegram(int Num);
+	
 	void insetReply(ReplyVO replyvo);
 	List<ReplyVO> selectRecipegramReplyByCode(ReplyVO replyvo);
 	int insertLikecnt(RecipegramVO recipegramvo);
@@ -52,9 +54,15 @@ public interface RecipegramMapper {
 	
 	Integer[] getRownum(int startNum);
 	Integer[] getlikeRownum(int startNum);
+	Integer[] getuserRownum(@Param("user_nickname")String user_nickname,  @Param("startNum")int Num);
 	
 	List<RecipegramVO> rguserList(String user_nickname);
 	
 	int deleteRecipegram(int recipegram_num);
 	List<RecipegramVO> getmodifyRecipegram(int recipegram_num);
+	
+	List<RecipegramVO> main_rgList();
+	
+	Integer rguserListcnt (String user_nickname);
 }
+

@@ -5,7 +5,7 @@ import org.springframework.stereotype.Service;
 
 import com.solrecipe.recipe.user.domain.MemberVO;
 
-
+@Service
 public class CommonServiceImpl implements CommonService{
 	
 	@Autowired

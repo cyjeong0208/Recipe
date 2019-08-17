@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.solrecipe.recipe.foodvideo.FoodVideoMapper">
+	<resultMap type="FoodVideoVO" id="fvResultMap">
+		<result property="video_num" column="video_num" />
+		<result property="video_id" column="video_id" />
+		<result property="video_playlist" column="video_playlist" />
+		<result property="video_title" column="video_title" />
+		<result property="video_content" column="video_content" />
+		<result property="video_thumbnail" column="video_thumbnail" />
+		<result property="firstdate" column="firstdate" />
+		<result property="video_mark_cnt" column="video_mark_cnt" />
+	</resultMap>
+
+	<select id="getBestList" resultMap="fvResultMap">
+		select video_num, video_title, video_thumbnail, rownum from (select * from food_video_tb order by video_mark_cnt desc)
+		where rownum <![CDATA[<=]]> 6
+	</select>
+	<select id="getNewList" resultMap="fvResultMap">
+		select video_num, video_title, video_thumbnail, firstdate, video_mark_cnt, rownum from (select * from food_video_tb order by firstdate desc)
+		where rownum <![CDATA[<=]]> 9
+	</select>
+	<select id="getMoreNewlist" resultMap="fvResultMap">
+		select * from 
+			(select video_num, video_title, video_thumbnail, firstdate, video_mark_cnt, rownum r from 
+				(select * from food_video_tb order by firstdate desc)
+			where rownum <![CDATA[<=]]> #{startNum}+6
+			)
+		where r > #{startNum}
+	</select>
+	<select id="getFVO" resultMap="fvResultMap">
+		select * from food_video_tb where video_num = #{video_num}
+	</select>
+	<select id="getPlayList" resultMap="fvResultMap">
+		select video_num, video_title, video_thumbnail,  rownum from (select * from food_video_tb where video_playlist = #{playList, jdbcType=VARCHAR} order by firstdate desc)
+		where rownum<![CDATA[<=]]> 5
+	</select>
+	<select id="getMorePlaylist" resultMap="fvResultMap">
+		select * from 
+			(select video_num, video_title, video_thumbnail, rownum r from
+				(select * from food_video_tb where video_playlist = #{playList, jdbcType=VARCHAR} order by firstdate desc)
+			where rownum <![CDATA[<=]]> #{startNum}+5
+			)
+		where r > #{startNum}
+	</select>
+	<select id="getListWithSearch" resultMap="fvResultMap">
+		<![CDATA[
+		select video_num, video_title, video_thumbnail, firstdate, video_mark_cnt, rownum from (
+			select * from food_video_tb where video_title like '%'||#{recipe_search}||'%' or video_content like '%'||#{recipe_search}||'%'
+			order by firstdate desc
+			)
+		where rownum <= 9
+		]]>
+	</select>
+	<select id="getMoreSearchlist" resultMap="fvResultMap">
+		<![CDATA[
+		select video_num, video_title, video_thumbnail, firstdate, video_mark_cnt, r from (
+			select video_num, video_title, video_thumbnail, firstdate, video_mark_cnt, rownum r from	(
+				select * from food_video_tb
+				where video_title like '%'||#{cri_search}||'%' or video_content like '%'||#{cri_search}||'%'
+				order by firstdate desc
+				)
+			where r <= #{startNum}+6
+			)
+		where r > #{startNum}
+		]]>
+	</select>
+	
+	<insert id="insertVideo">
+		insert into food_video_tb (video_num, video_id, video_playlist, video_title, video_content, video_thumbnail, firstdate) values (video_num_seq.nextVal, #{video_id}, #{video_playlist}, #{video_title}, #{video_content}, #{video_thumbnail}, #{firstdate})
+	</insert>
+	
+	<select id="checkMarked" resultType="int">
+		select count(*) from markvideo_tb where user_num = #{userNum} and video_num = #{videoNum}
+	</select>
+	
+	<insert id="markingMarkVideo_tb">
+		insert into markvideo_tb values(markvideo_num_seq.nextval, #{userNum}, #{videoNum}, sysdate)
+	</insert>
+	
+	<update id="markingFoodVideo_tb">
+		update food_video_tb set video_mark_cnt = video_mark_cnt+1 where video_num = #{videoNum}
+	</update>
+	
+	<delete id="unmarkingMarkVideo_tb">
+		delete from markvideo_tb where user_num=#{userNum} and video_num=#{videoNum}
+	</delete>
+	
+	<update id="unmarkingFoodVideo_tb">
+		update food_video_tb set video_mark_cnt = video_mark_cnt-1 where video_num = #{videoNum}
+	</update>
+</mapper>
+
+
+
+
+
+
+
+
+
+
+

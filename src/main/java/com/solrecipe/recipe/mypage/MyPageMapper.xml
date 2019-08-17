@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.solrecipe.recipe.mypage.MyPageMapper">
+	<resultMap type="MyVideoVO" id="myVideoResultMap">
+		<result property="video_num" column="video_num" />
+		<result property="video_id" column="video_id" />
+		<result property="video_title" column="video_title" />
+		<result property="firstdate" column="firstdate" />
+	</resultMap>
+	
+	<resultMap type="Recipe_basicVO" id="basic_info">
+		<result property="recipe_num" column="recipe_num"/>
+		<result property="recipe_title" column="recipe_title"/>
+		<result property="recipe_img" column="recipe_img"/>
+		<result property="firstdate" column="firstdate"/>
+		<result property="updatedate" column="updatedate"/>
+		<result property="recipe_food_main" column="recipe_food_main"/>
+		<result property="recipe_food_suv" column="recipe_food_suv"/>
+		<result property="excel" column="excel"/>
+		<result property="user_num" column="user_num"/>
+		<result property="user_nickname" column="user_nickname"/>
+	</resultMap>
+	
+	<select id="getMarkedVideos" resultMap="myVideoResultMap">
+		select *
+		from (select m.firstdate , v.video_num, v.video_id, v.video_title
+				from markvideo_tb m, food_video_tb v
+				where m.user_num = #{userNum} and
+				m.video_num = v.video_num
+				order by m.firstdate desc)
+		where rownum <![CDATA[<=]]> 6
+	</select>
+	
+	<select id="getMoreVideos" resultMap="myVideoResultMap">
+		select *
+		from (select firstdate, video_num, video_id, video_title, rownum r
+				from (select m.firstdate , v.video_num, v.video_id, v.video_title
+						from markvideo_tb m, food_video_tb v
+						where m.user_num = #{userNum} and
+						m.video_num = v.video_num
+						order by m.firstdate desc)
+				where rownum <![CDATA[<=]]> #{startNum}+4)
+		where r > #{startNum}
+	</select>
+	
+	
+	
+	<!-- 190814 수정 , myRecipe_mark 에서 찜한 레시피를 가져오는 sql -->
+	<!-- 찜한 날짜순으로 가져온다. --><!-- ※ firstdate는 찜한 날짜를, user_num은 레시피를 찜한 사람의 user_num이다! -->
+	<select id="getMarkedRecipes" resultMap="basic_info">
+	select a.firstdate,b.recipe_num,b.recipe_title,b.recipe_img,b.recipe_food_main,b.recipe_food_suv,b.excel,a.user_num,rownum rn from 
+	(select * from markrecipe_tb where user_num = #{userNum} order by firstdate desc) a 
+	inner join 
+	( select * from 
+	    ( select * from  recipe_basic_tb)
+	     UNION ALL
+	    ( select * from excel_recipe_basic_tb)
+	) b ON (a.recipe_num = b.recipe_num and a.excel = b.excel) where rownum <![CDATA[<= ]]> 6
+	</select>
+	
+	
+	<!-- 190814 수정 , myRecipe_mark 에서 찜한 레시피를 추가적으로 가져오는 sql -->
+	<select id="getMoreRecipes" resultMap="basic_info">
+	
+	select * from (
+		select a.firstdate,b.recipe_num,b.recipe_title,b.recipe_img,b.recipe_food_main,b.recipe_food_suv,b.excel,a.user_num,rownum rn from 
+		(select * from markrecipe_tb where user_num = #{userNum} order by firstdate desc) a 
+		inner join 
+		( select * from 
+		    ( select * from  recipe_basic_tb)
+		     UNION ALL
+		    ( select * from excel_recipe_basic_tb)
+		) b ON (a.recipe_num = b.recipe_num and a.excel = b.excel) where rownum <![CDATA[ <= ]]>  #{startNum}+4
+	) where rn > #{startNum}
+	
+	</select>
+	
+	
+	<update id="modifyPW">
+		update user_tb set user_pw=#{userPW} where user_num = #{userNum}
+	</update>
+	
+	<update id="updateProfile_tb">
+		update user_profile_tb set user_intro=#{userIntro}, user_img = #{userImg}, isopen=#{isOpen} where user_num = #{userNum}
+	</update>
+	
+	<update id="updateDetail_tb">
+		update user_detail_tb set user_nickname=#{userNickname}, user_name=#{userName} where user_num = #{userNum}
+	</update>
+	
+	<select id="checkNickname" resultType="int">
+		select count(*) from user_detail_tb where user_nickname = #{userNickname}
+	</select>
+	
+	<select id = "getENPW" resultType="String">
+		select user_pw from user_tb where user_num = #{userNum}
+	</select>
+	
+	<!-- 190813추가 : myPage_recipe : 자기가 쓴 레시피 관련 정보들을 List로 끌어오기  -->
+	<select id="getMyRecipe" resultMap="basic_info">
+		select * from RECIPE_BASIC_TB where user_num = #{user_num}
+	</select>
+	
+	<!-- 190813추가  : id(ex : xxxx@naver.com)로 user_num 알아오는 sql -->
+	<select id="getUserNumById" resultType="int">
+		select user_num from user_tb where user_username = #{user_id}
+	</select>
+	
+</mapper>
+
+
+
+
+

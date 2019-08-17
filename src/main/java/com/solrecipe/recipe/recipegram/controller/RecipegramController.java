@@ -4,6 +4,8 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.nio.file.Files;
 import java.security.Principal;
 import java.sql.Date;
@@ -66,7 +68,10 @@ public class RecipegramController {
 	
 	@Autowired
 	CommonService commonService;
-	
+	 @RequestMapping("/recipegram_write")
+	   public String recipegram_write() {
+	      return "recipegram/recipegram_write";
+	   }
 	//이미지 indigators
 		@RequestMapping(value="/img_list", method=RequestMethod.POST, produces="application/json;charset=UTF-8")
 		@ResponseBody
@@ -249,21 +254,42 @@ public class RecipegramController {
 	
 	@PostMapping(value="/getMoreNewRecipegram", produces="application/json;charset=UTF-8")
 	@ResponseBody
-	public ArrayList<RecipegramVO> getMoreNewRecipegram(RecipegramCriteria cri, String startNum){
+	public ArrayList<RecipegramVO> getMoreNewRecipegram(String recipe_search, String startNum) throws UnsupportedEncodingException{
 		// index 무한스크롤
-		log.info("ccccccc : " + cri);
-		ArrayList<RecipegramVO> moreNewlist = (ArrayList) recipegramservice.getRownum(cri, Integer.parseInt(startNum));
-		log.info("getMoerNew");
+		String search = null;
+		if(recipe_search !=null) {
+			search = URLDecoder.decode(recipe_search , "UTF-8" );
+
+		}
+		
+		ArrayList<RecipegramVO> moreNewlist = (ArrayList) recipegramservice.getRownum(search, Integer.parseInt(startNum));
 		return moreNewlist;
 	}
 	
 	@PostMapping(value="/getMoreLikeNewRecipegram", produces="application/json;charset=UTF-8")
 	@ResponseBody
-	public ArrayList<RecipegramVO> getMoreLikeNewRecipegram(String startNum){
+	public ArrayList<RecipegramVO> getMoreLikeNewRecipegram(String recipe_search,String startNum) throws UnsupportedEncodingException{
 		// index 무한스크롤
-		ArrayList<RecipegramVO> moreNewlist = (ArrayList) recipegramservice.getlikeRownum(Integer.parseInt(startNum));
-		log.info("getMoerNew");
-		return moreNewlist;
+				String search = null;
+				if(recipe_search !=null) {
+					search = URLDecoder.decode(recipe_search , "UTF-8" );
+
+				}
+				
+				ArrayList<RecipegramVO> moreNewlist = (ArrayList) recipegramservice.getlikeRownum(search, Integer.parseInt(startNum));
+				return moreNewlist;
+	}
+	
+	@PostMapping(value="/getMoreUserNewRecipegram", produces="application/json;charset=UTF-8")
+	@ResponseBody
+	public ArrayList<RecipegramVO> getMoreUserNewRecipegram(String startNum, String user_nickname) throws UnsupportedEncodingException{
+		// index 무한스크롤
+				
+				
+				log.info("searchccccccc : " + user_nickname);
+				ArrayList<RecipegramVO> moreNewlist = (ArrayList) recipegramservice.getuserRownum(user_nickname, Integer.parseInt(startNum));
+				log.info("getMoerNew");
+				return moreNewlist;
 	}
 	
 	@RequestMapping(value="/getLike", produces="application/json; charset=utf8")
@@ -467,6 +493,7 @@ public class RecipegramController {
 		log.info(request.getParameter("user_nickname"));
 		model.addAttribute("userlist", usservice.getPublic(request.getParameter("user_nickname")));
 		model.addAttribute("list", recipegramservice.rguserList(request.getParameter("user_nickname")));
+		model.addAttribute("rgcnt", recipegramservice.rguserListcnt(request.getParameter("user_nickname")));
 		log.info(model);
 		return "/recipegram/recipegram_user_index";
 //		if(username != null) {
