@@ -217,9 +217,12 @@ input.cooking_txt:focus, .recipegram_btn:focus, #recipegram_content:focus
          <div class="col-lg-6 col-md-6 mb-4 mb-lg-0" >
          		<span style="margin-left:95%;" onclick="document.getElementById('imgs').click();"><i class="fas fa-plus" title="이미지 추가"> </i></span>
          		<div class="text-center rounded">
-         		
-         		<sec:authentication var="user_num" property="principal.member.user_num"/>
-    			<input type="hidden" id="user_num" name="user_num" value="${user_num }">
+         		<sec:authorize access="isAuthenticated()">
+	         		<sec:authentication var="user_num" property="principal.member.user_num"/>
+	    			<input type="hidden" id="user_num" name="user_num" value="${user_num }">
+    			</sec:authorize>
+    			
+	    
          		<!-- 업로드한 이미지가 들어갈 부분 -->
        			<div id="imgWrapper">
        				<img id="mainImg" src="img/recipegram/default.jpg">

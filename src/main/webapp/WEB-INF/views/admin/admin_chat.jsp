@@ -1,5 +1,13 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
     pageEncoding="UTF-8"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags" %>
+<%
+	int startPage = (int)request.getAttribute("startPage");
+	int endPage = (int)request.getAttribute("endPage");
+	int totalPage = (int)request.getAttribute("totalPage");
+	int curPage = (int)request.getAttribute("page");
+%>
 <!DOCTYPE html>
 <html>
 <head>
@@ -225,7 +233,7 @@ $(document).ready(function(){
 					<span class="icon">
 						<input TYPE="IMAGE" id="search_icon" src="../img/main/search.png" value="Submit" >
 					</span>
-					<input id="search" name="search">
+					<input id="search" name="search" value="${search}">
 				</form>
             </div>
           </div>
@@ -260,16 +268,48 @@ $(document).ready(function(){
 				 		<th>
 				 			방 장
 				 		</th>
-				 		<th>
+				 		<!-- <th>
 				 			진행 / 마감
-				 		</th>
+				 		</th> -->
 				 		<th>
 				 			날 짜
+				 		</th>
+				 		<th>
+				 			삭제
 				 		</th>
 				 	</tr>
 				 </thead>
 				 <tbody>
-			 		<tr>
+				 	<c:forEach var="chatroom" items="${chatroomList}">
+				 		<tr id="${chatroom.chatroom_num}">
+					 		<td>
+					 			${chatroom.chatroom_num }
+					 		</td>
+					 		<td>
+					 			${chatroom.type}
+					 		</td>
+					 		<td>
+					 			<a href="javascript:openChattingModal(${chatroom.chatroom_num})">
+					 				${chatroom.chat_title}
+					 			</a>
+					 		</td>
+					 		<td>
+					 			<a href="javascript:sendMessage(${chatroom.user_num})">
+					 				${chatroom.user_nickname}
+					 			</a>
+					 		</td>
+					 		<td>
+					 			${chatroom.firstdate}
+					 		</td>
+					 		<td>
+					 			<a href="javascript:deleteChatRoom(${chatroom.chatroom_num},'${chatroom.type}')">
+					 				삭제
+					 			</a>
+					 		</td>
+				 		</tr>
+					</c:forEach> 
+				 
+			 		<%-- <tr>
 				 		<td>
 				 			1
 				 		</td>
@@ -284,9 +324,9 @@ $(document).ready(function(){
 				 		<td>
 				 			연정쓰
 				 		</td>
-				 		<td>
+				 		<!-- <td>
 				 			마감
-				 		</td>
+				 		</td> -->
 				 		<td>
 				 			2019-02-16
 				 		</td>
@@ -299,18 +339,21 @@ $(document).ready(function(){
 				 			물물교환
 				 		</td>
 				 		<td>
-				 			<button class="font-gray-7 chatting" style="border:none; background:none;">
-				 				오이3개랑 교환합니다!!! :)
-				 			</button>
+				 			<a href="javascript:delete(${fvVO.chatroom_num })">
+					 				삭제
+					 		</a>
 				 		</td>
 				 		<td>
 				 			아람쓰
 				 		</td>
-				 		<td>
+				 		<!-- <td>
 				 			진행중
-				 		</td>
+				 		</td> -->
 				 		<td>
 				 			2019-07-05
+				 		</td>
+				 		<td>
+				 			<a ></a>
 				 		</td>
 				 	</tr>
 				 	<tr>
@@ -328,9 +371,9 @@ $(document).ready(function(){
 				 		<td>
 				 			관수쓰
 				 		</td>
-				 		<td>
+				 		<!-- <td>
 				 			마감
-				 		</td>
+				 		</td> -->
 				 		<td>
 				 			2019-05-28
 				 		</td>
@@ -350,9 +393,9 @@ $(document).ready(function(){
 				 		<td>
 				 			상언쓰
 				 		</td>
-				 		<td>
+				 		<!-- <td>
 				 			마감
-				 		</td>
+				 		</td> -->
 				 		<td>
 				 			2018-12-01
 				 		</td>
@@ -372,18 +415,46 @@ $(document).ready(function(){
 				 		<td>
 				 			창희쓰
 				 		</td>
-				 		<td>
+				 		<!-- <td>
 				 			진행중
-				 		</td>
+				 		</td> -->
 				 		<td>
 				 			2019-07-06
 				 		</td>
-				 	</tr>
+				 	</tr> --%>
 				 </tbody>
 				 
 			 </table>
 		
 		</div>
+		
+		<!-- 페이징 -->
+		<div class="row" style="font-size:23px;">
+				<div class="col-12 text-center">
+					<%if(startPage != 1){ %>
+					<a href='javascript:movePage("${startPage-10 }")'><i class="fas fa-angle-left" style="color:#FFC69F;"></i></a>
+					&nbsp;
+					&nbsp;
+					<%}%>
+					<%for(int i=startPage; i<=endPage; i++){
+						if (i==curPage){
+					%>
+						<a href='javascript:movePage(<%=i %>)' style="color:white;"><%=i %></a>
+						&nbsp;
+						&nbsp;
+					<%}else{ %>
+						<a href='javascript:movePage(<%=i %>)'><%=i %></a>
+						&nbsp;
+						&nbsp;
+					<%}} %>
+					<%if(endPage != totalPage){ %>
+					<a href='javascript:movePage("${endPage+1 }")'><i class="fas fa-angle-right"  style="color:#FFC69F;"></i></a>
+					<%} %>
+				</div>	
+			</div>
+			<div class="row" style="margin-top:5%;"></div>
+			
+			
 		</div>
 	</div>
       
@@ -394,26 +465,125 @@ $(document).ready(function(){
       
       	
 <script>
-var modal = document.getElementById('chattingModal');
-var span1 = document.getElementsByClassName("close");
+	if ("${isDeleted}" != null && "${isDeleted}"== "1") { alert('삭제완료') }
+	
+	var modal = document.getElementById('chattingModal');
+	var span1 = document.getElementsByClassName("close");
+	var chattingRoomTitle = document.querySelector('#chattingModal h4')
+	var search = "${search}"
+	//$('.chatting').click(function() {
+		//  modal.style.display = "block";
+		 /*  $(this).css('z-index', 3000); */
+	//});
+	
+	
+	span1[0].onclick = function() {
+		   modal.style.display = "none";
+	}
+	
+	window.onclick = function(event) {
+	   if (event.target == modal) {
+	      //modal.style.display = "none"; //코드 중복 방지~
+	      span1[0].click();
+	   } 
+	}
+	
+	function movePage(page){
+		// 검색 안한 경우
+		if(search==""){
+			location.href="admin_chat?page="+page;	
+		}
+		// 검색한 경우
+		else{
+			location.href="admin_chat?page="+page+"&search="+encodeURIComponent(search);
+		}
+	}
+	
+	//채팅방 삭제
+	function deleteChatRoom(chatroom_num,type) {
+		//console.log(chatroom_num);
+		if (confirm("정말 삭제하시겠습니까?")==true){    //확인
+			location.href="/admin_chat_delete?chatroom_num="+chatroom_num+"&page=${page}"+"&search="+encodeURIComponent(search)+"&type="+encodeURIComponent(type);
+			//alert('구현중!')
+			
+		}else{   //취소
+			return false;
+		}
+	}
 
-$('.chatting').click(function() {
-
-	  modal.style.display = "block";
-	 /*  $(this).css('z-index', 3000); */
-   
-});
-
-
- span1.onclick = function() {
-   modal.style.display = "none";
-   }
-
-window.onclick = function(event) {
-   if (event.target == modal) {
-      modal.style.display = "none";
-   } 
-}
+	//채팅방 방장에게 메시지 보내기. 아직은 구현 X
+	function sendMessage(user_num) {
+		if(confirm("메시지를 보내시겠습니까?")==true) {
+			console.log('쪽지함으로 이동하는 과정을 넣어주세요')
+			alert('아직 쪽지함 기능은 미구현입니다 ㅠㅠ')
+		} else {
+			return false;
+		}
+	}
+	
+	
+	var csrfHeaderName ="${_csrf.headerName}"; 
+	var csrfTokenValue="${_csrf.token}";
+	
+	//채팅방 보여주기
+	function openChattingModal(chatroom_num) {
+		
+		var fieldset = $('fieldset');
+		$.ajax({
+	        url : "/getChatting",
+	        data : {"chatroom_num" : chatroom_num},
+	        dataType : 'json',
+	        type : 'POST',
+	        beforeSend: function(xhr) {
+	            xhr.setRequestHeader(csrfHeaderName, csrfTokenValue);
+	            fieldset.empty();
+	            chattingRoomTitle.innerText = '';
+	            console.log('loading');
+	        },
+	        success : function(response) {
+	         
+	           console.log(response);
+	           console.log(response.length)
+	           if(response.length===0) {
+	        	   alert('대화 내용이 없습니다.')
+	           } else {
+	        	    modal.style.display = "block";
+					let postUser='';
+					let titleItem =  $('tr#'+chatroom_num).children();
+					
+					response.forEach(function(data,index){
+						chattingRoomTitle.innerText = titleItem[1].innerText+' '+titleItem[0].innerText+'번 채팅방';
+	        		   	let appendItem;
+	        			if(postUser !== data['user_nickname']) {
+	        				appendItem = '<div class="form-group">'+
+		        			 '<label for="user1_nickname">'+data['user_nickname']+'</label>'+'<input type="text" class="form-control ml-4 mb-2" 	id="user1_nickname" name = "user1_nickname"  value="'+data['chat_content']+'" style="width:90%;" readonly>'
+	        			} else {
+	        				appendItem = '<input type="text" class="form-control ml-4 mb-2" 	id="user1_nickname" name = "user1_nickname"  value="'+data['chat_content']+'" style="width:90%;" readonly></div>'
+	        			}
+	        		   
+	        		    /* $('fieldset').append(
+	        			 '<div class="form-group">'+
+	        			 '<label for="user1_nickname">'+data['user_nickname']+'</label>'+'<input type="text" class="form-control ml-4 mb-2" 	id="user1_nickname" name = "user1_nickname"  value="'+data['chat_content']+'" style="width:90%;" readonly></div>'
+	        			) */
+	        			
+	        			$('fieldset').append(appendItem);
+	        			
+	        			postUser = data['user_nickname'];
+	        		});
+	           }
+	           
+	        },                  
+	        error : function(jqXHR) {
+	        	alert('데이터 전송에 실패했습니다. 통신 상태가 좋지 않거나 서버에 문제가 있을 수 있습니다.')
+				console.log('error');
+	        },            
+	     }); 
+		//$('fieldset').empty();//일단 내용을 비운다.
+		//$('fieldset').append를 해주자. for문 돌려서
+		
+		
+	}
+	
 
 </script>
 

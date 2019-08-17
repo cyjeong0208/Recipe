@@ -78,7 +78,7 @@
 	var colorData = ["red", "orange", "green", "#5ED1D4", "blue", "purple"];
 	var textData = ["회원관리", "레시피관리", "영상관리", "레시피그램관리", "채팅방관리", "메시지관리"];
 	//이동할 페이지 
-	var pathData = ["admin_users.jsp", "admin_recipe.jsp", "admin_foodvideo.jsp", "../recipegram/recipegram_index.jsp", "admin_chat.jsp", "admin_message.jsp"];
+	var pathData = ["/admin_users", "/admin_recipe", "/admin_foodvideo", "/recipegram_index", "/admin_chat", "/admin_message"];
 	var pie = d3.pie();
 	var arc = d3.arc().innerRadius(200).outerRadius(300); 
 	 
@@ -130,7 +130,7 @@
 	svg.append("text")
 	    .attr("class", "admin")
 	    .on("click", function() {
-	    	location.href = "admin_page.jsp";
+	    	location.href = "/admin_index";
 	    })
 	    .attr("transform", "translate("+(w/2-135)+", "+(h/2+15)+")")
 	    .text("관리자페이지");

@@ -30,7 +30,7 @@
                      <label for="user_pw_check">비밀번호 확인</label> <br> <p id="pwchk_chk_text" style="display:none; color:#FFA19D;" >패스워드와 일치하지 않습니다.</p> <br> 
                      <input type="password" class="form-control" id="user_pw_check"name="user_pw_check" placeholder="비밀번호를 다시 입력해주세요.."> <br> 
                     
-                     <label for="user_name">이 름</label><br> <p id="name_chk_text" style="display:none; color:#FFA19D;" >이름을 작성해주세요.</p> <br> 
+                     <label for="user_name">이 름</label><br> <p id="name_chk_text" style="display:none; color:#FFA19D;" >이름을 작성해주세요.</p> <p id="name_text" style="display:none; color:#FFA19D;" >10자이하입니다. </p> <br> 
                      <input type="text" class="form-control" id="user_name" name="user_name" placeholder="이름을 입력해주세요.."> <br>
                      
                      <label for="user_nickname">닉네임</label>  &emsp; <span class="font-size-12 text-right" id="nick">10자 이하  </span>
@@ -71,7 +71,8 @@
 		var Nickname= $("#user_nickname").val();
 		
 		//alert(name + ", " + Email + ", " + nickname);
-	
+		var signup_form = document.signup_form;
+		
 
 		
 		var passRule = /^[A-Za-z0-9]{8,15}$/;//숫자와 문자 포함 형태의 8~15자리 이내의 암호 정규식
@@ -105,6 +106,17 @@
 			$("#name_chk_text").css("display", "inline");
 			return false;
 		}
+		if(Name.length >10){
+			$("#user_pw").css("background-color", "#fff");
+			$("#pwd_qual").css("color", "#b8b8b8");
+			$("#pw_chk_text").css("display", "none");
+			$("#user_pw_check").css("background-color", "#fff");
+			$("#pwchk_chk_text").css("display", "none");
+			$("#user_name").css("background-color", "#FFA19D");
+			$("#name_chk_text").css("display", "none");
+			$("#name_text").css("display", "inline");
+			return false;
+		}
 		if(Nickname.length >10){
 			$("#user_pw").css("background-color", "#fff");
 			$("#pwd_qual").css("color", "#b8b8b8");
@@ -119,6 +131,8 @@
 		}
 		var csrfHeaderName ="${_csrf.headerName}"; 
 		var csrfTokenValue="${_csrf.token}";
+		
+		
 			$.ajax({
 		             type: "get",
 		             url: "/chkNickname",

@@ -63,8 +63,10 @@
 					</form>
 					
 					<!-- 카카오톡 로그인창으로 이동 -->
-					<a id="kakao-login-btn"></a>
-   					 <a href="http://developers.kakao.com/logout"></a>
+					
+					<a href="https://kauth.kakao.com/oauth/authorize?client_id=883e28a352b418b05e174ad11fdd3a07&redirect_uri=http://localhost:8080/kakao_login&response_type=code">
+						<img src="//k.kakaocdn.net/14/dn/btqbjxsO6vP/KPiGpdnsubSq3a0PHEGUK1/o.jpg" width="250">
+					</a>
 					<!-- 네이버 로그인 창으로 이동 -->
 				
 					<a id="naver_id_login"  href="${url}">
@@ -91,24 +93,63 @@
 		</div>
 
 	</div>
-
 	
+
 <!-- 카카오톡로그인 -->	
 <script type='text/javascript'>
-      //<![CDATA[
-        // 사용할 앱의 JavaScript 키를 설정해 주세요.
-        Kakao.init('2f41b5e7e4b906f259fd989c962a98d0');
-        // 카카오 로그인 버튼을 생성합니다.
-        Kakao.Auth.createLoginButton({
-          container: '#kakao-login-btn',
-          success: function(authObj) {
-            alert(JSON.stringify(authObj));
-          },
-          fail: function(err) {
-             alert(JSON.stringify(err));
-          }
-        });
-      //]]>
+var csrfHeaderName ="${_csrf.headerName}"; 
+var csrfTokenValue="${_csrf.token}";
+
+
+/* //<![CDATA[ // 사용할 앱의 JavaScript 키를 설정해 주세요. 
+Kakao.init('2f41b5e7e4b906f259fd989c962a98d0'); //여기서 아까 발급받은 키 중 javascript키를 사용해준다. 
+// 카카오 로그인 버튼을 생성합니다.
+Kakao.Auth.createLoginButton({ 
+	  container: '#kakao-login-btn', 
+	  success: function(authObj){
+		  Kakao.API.request({
+		       url: '/v1/user/me',
+		     
+		       success: function(res) {
+		           //  alert(JSON.stringify(res)); //<---- kakao.api.request 에서 불러온 결과값 json형태로 출력
+		           //  alert(JSON.stringify(authObj)); //<----Kakao.Auth.createLoginButton에서 불러온 결과값 json형태로 출력
+		        
+		           console.log(res.id);//<---- 콘솔 로그에 id 정보 출력(id는 res안에 있기 때문에  res.id 로 불러온다)
+		             console.log(res.kaccount_email);//<---- 콘솔 로그에 email 정보 출력 (어딨는지 알겠죠?)
+		             console.log(res.properties['nickname']);//<---- 콘솔 로그에 닉네임 출력(properties에 있는 nickname 접근 
+		             console.log(authObj.access_token);//<---- 콘솔 로그에 토큰값 출력
+		             
+		             
+		             modal_sign_up.style.display = "none";
+		             modal_kakao_sign_up.style.display = "block";
+		             
+		    		$.ajax({
+		         		url:'/kakaoLogin',
+		         		type:'post', //여기서 String값으로 받고 밑에서 비교하는것을 success,fail로 비교하자!!
+		         		contentType:'application/json; charset=UTF-8',
+			             
+		         		 data:{"user_username":res.id, "user_nickname":res.properties['nickname']},
+		         		 dataType : "text",
+		         		 beforeSend: function(xhr) {
+					          xhr.setRequestHeader(csrfHeaderName, csrfTokenValue);
+					      },  
+		         		success : function(data) {
+		         			alert('성공'+data);
+		         			location.href=data;
+		         				}, 
+		         		error : function(request,status,error){
+		  		    	  console.log("code:"+request.status+"\n"+"message:"+request.responseText+"\n"+"error:"+error);
+		    		    }
+		 			}); 
+		       }
+		         })
+	  }, 
+	fail: function(err) { 
+		alert("실패"+JSON.stringify(err)); 
+		}
+		  }); //]]>
+ */
+ 
     </script>
 <!-- 네이버아이디로로그인 버튼 노출 영역 -->
 <!-- <script type="text/javascript">

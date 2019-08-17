@@ -1,7 +1,15 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
     pageEncoding="UTF-8"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags" %>
 <!DOCTYPE html>
 <html>
+<%
+	int startPage = (int)request.getAttribute("startPage");
+	int endPage = (int)request.getAttribute("endPage");
+	int totalPage = (int)request.getAttribute("totalPage");
+	int curPage = (int)request.getAttribute("page");
+%>
 <head>
 <meta charset="UTF-8">
 <meta name="viewport"
@@ -33,12 +41,19 @@
 <!-- <script src="../resources/js/jquery-3.3.1.min.js"></script> -->
 <script src="../resources/js/jquery-ui.js"></script>
 <!-- 정렬 -->
+
+<!-- fontawesome -->
+<script src="https://kit.fontawesome.com/d2c6942021.js"></script>
 <script>
 
 $(document).ready(function(){ 
     $("#foodvideo_tb").tablesorter();
  });
 
+</script>
+<script>
+if ("${isDeleted}" != null && "${isDeleted}"== "1")
+	alert("삭제 완료");
 </script>
 <style>
 
@@ -127,7 +142,7 @@ $(document).ready(function(){
           
             <!-- 로고 -->
             <div class="site-logo">
-              <a href="admin_index.jsp" ><img src="../img/admin/admin_logo.png" width="10%"/></a>
+              <a href="/admin_index" ><img src="../img/admin/admin_logo.png" width="10%"/></a>
             </div>
          </div>
        </div>
@@ -142,12 +157,12 @@ $(document).ready(function(){
             <div class="col-md-12 col-lg-7 text-center search">
       
                 
-				<form id="searchText" method="post">
-					
+				<form id="searchText" action="/admin_searchfoodvideo" method="get">
+					<input type = "hidden" name = "${_csrf.parameterName }" value = "${_csrf.token }"/>
 					<span class="icon">
-						<input  TYPE="IMAGE" id="search_icon" src="../img/main/search.png" value="Submit" >
+						<input  TYPE="IMAGE" id="search_icon" src="../img/main/search.png" type="submit" value="Submit" >
 					</span>
-					<input id="search" name="search">
+					<input type="text" id="search" name="search" value="${search }">
 				</form>
             </div>
           </div>
@@ -159,10 +174,15 @@ $(document).ready(function(){
       <div class="container">
         <div class="row mb-2">
         
-          <div class="col-12 text-left">
+          <div class="col-9 text-left">
            <div class="block-heading-1">
               <h4>- 영 상 관 리 -</h4>
             </div>
+          </div>
+          <div class="col-3 text-right">
+          	<div class="block-heading-1" style="color:#FFC69F;">
+             	${totalPosts }
+          	</div>
           </div>
         </div>
          <div class="row mb-5">
@@ -188,6 +208,28 @@ $(document).ready(function(){
 				 	</tr>
 				 </thead>
 				 <tbody>
+				 	<c:forEach var="fvVO" items="${foodvideoList}">
+				 		<tr>
+					 		<td>
+					 			${fvVO.video_num }
+					 		</td>
+					 		<td>
+					 			<a href="/foodvideo_detail?video_num=${fvVO.video_num }">${fvVO.video_title }</a>
+					 		</td>
+					 		<td>
+					 			${fvVO.firstdate }
+					 		</td>
+					 		<td>
+					 			${fvVO.video_mark_cnt }
+					 		</td>
+					 		<td>
+					 			<a href="javascript:deleteVideo(${fvVO.video_num })">
+					 				삭제
+					 			</a>
+					 		</td>
+				 		</tr>
+					</c:forEach> 
+			 		<!-- 
 			 		<tr>
 				 		<td>
 				 			1
@@ -255,17 +297,70 @@ $(document).ready(function(){
 				 		<td>
 				 			삭 제
 				 		</td>
-				 	</tr>
+				 	</tr> 
+				 	-->
 				 </tbody>
 				 
 			 </table>
 		
 		</div>
+		
+		<!-- 페이징 -->
+		<div class="row" style="font-size:23px;">
+				<div class="col-12 text-center">
+					<%if(startPage != 1){ %>
+					<a href='javascript:movePage("${startPage-10 }")'><i class="fas fa-angle-left" style="color:#FFC69F;"></i></a>
+					&nbsp;
+					&nbsp;
+					<%}%>
+					<%for(int i=startPage; i<=endPage; i++){
+						if (i==curPage){
+					%>
+						<a href='javascript:movePage(<%=i %>)' style="color:white;"><%=i %></a>
+						&nbsp;
+						&nbsp;
+					<%}else{ %>
+						<a href='javascript:movePage(<%=i %>)'><%=i %></a>
+						&nbsp;
+						&nbsp;
+					<%}} %>
+					<%if(endPage != totalPage){ %>
+					<a href='javascript:movePage("${endPage+1 }")'><i class="fas fa-angle-right"  style="color:#FFC69F;"></i></a>
+					<%} %>
+				</div>	
+			</div>
+			<div class="row" style="margin-top:5%;"></div>
+			
 		</div>
 	</div>
       
 
    </div> 
            
+<script>
+// 페이지 이동 함수
+var search = "${search}"
+function movePage(page){
+	// 검색 안한 경우
+	if(search==""){
+		location.href="admin_foodvideo?page="+page;	
+	}
+	// 검색한 경우
+	else{
+		location.href="admin_searchfoodvideo?page="+page+"&search="+search;
+	}
+}
+
+// 삭제 함수
+function deleteVideo(video_num){
+	if (confirm("정말 삭제하시겠습니까?")==true){    //확인
+		location.href="admin_foodvideo_delete?video_num="+video_num+"&page="+"${page}"+"&search="+search;
+	 }else{   //취소
+		return false;
+	 }
+}
+
+</script>
+
 </body>
 </html>

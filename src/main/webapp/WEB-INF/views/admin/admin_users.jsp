@@ -1,7 +1,18 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
     pageEncoding="UTF-8"%>
+<%@ page import="java.util.List" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
+<%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags" %>
+<%@ page import="com.solrecipe.recipe.user.domain.MemberVO" %>
 <!DOCTYPE html>
 <html>
+<%
+	int startPage = (int)request.getAttribute("startPage");
+	int endPage = (int)request.getAttribute("endPage");
+	int totalPage = (int)request.getAttribute("totalPage");
+	int curPage = (int)request.getAttribute("page");
+%>
 <head>
 <meta charset="UTF-8">
 <meta name="viewport"
@@ -95,8 +106,58 @@ $(document).ready(function(){
 	.table {
 		font-size : 0.7em;
 	}
-	
-	
+}
+
+.btns{
+	border:none; 
+	background:none;
+	color:#939393;
+	outline:none;
+}
+
+
+/* The Modal (background) */
+.modal {
+	display: none; /* Hidden by default */
+	position: fixed; /* Stay in place */
+	z-index: 1000; /* Sit on top */
+	left: 0;
+	top: 0;
+	width: 100%; /* Full width */
+	height: 100%; /* Full height */
+	overflow: auto; /* Enable scroll if needed */
+	background-color: rgb(0, 0, 0); /* Fallback color */
+	background-color: rgba(0, 0, 0, 0.4); /* Black w/ opacity */
+}
+
+/* Modal Content/Box */
+.msg-modal-content {
+	background-color: #fefefe;
+	margin: 8% auto; /* 15% from the top and centered */
+	padding: 2%;
+	border: 1px solid #888;
+	width: 50%; /* Could be more or less, depending on screen size */
+	height: auto;
+}@media (max-width:500px){
+	.msg-modal-content{
+		margin: 2% 5%; /* 15% from the top and centered */
+		padding: 1%;
+		width: 93%;
+	}
+}
+
+/* The Close Button */
+.close {
+	color: #aaa;
+	float: right;
+	font-size: 28px;
+	font-weight: bold;
+}
+
+.close:hover, .close:focus {
+	color: black;
+	text-decoration: none;
+	cursor: pointer;
 }
 
 </style>
@@ -105,6 +166,9 @@ $(document).ready(function(){
 
 
 <body bgcolor="black">
+
+ <%-- <jsp:include page = "../message/message_write.jsp"/> --%>
+
 <div class="site-wrap"  id="home-section">
 
     <div class="site-mobile-menu site-navbar-target">
@@ -131,7 +195,6 @@ $(document).ready(function(){
     </header>
     
     
-  
     <div class="bg-dark" >
 		
         <div class="container">
@@ -139,12 +202,12 @@ $(document).ready(function(){
             <div class="col-md-12 col-lg-7 text-center search">
       
                 
-				<form id="searchText" method="post">
-					
+				<form id="searchText" action="/admin_searchuserlist" method="get">
+					<input type = "hidden" name = "${_csrf.parameterName }" value = "${_csrf.token }"/>
 					<span class="icon">
 						<input  TYPE="IMAGE" id="search_icon" src="../img/main/search.png" value="Submit" >
 					</span>
-					<input id="search" name="search">
+					<input type="text" id="search" name="search" value="${search }">
 				</form>
             </div>
           </div>
@@ -156,13 +219,18 @@ $(document).ready(function(){
       <div class="container">
         <div class="row mb-2">
         
-          <div class="col-12 text-left">
+          <div class="col-9 text-left">
            <div class="block-heading-1">
               <h4>- 회 원 관 리 -</h4>
             </div>
           </div>
+         <div class="col-3 text-right">
+          	<div class="block-heading-1" style="color:#FFC69F;">
+             	${totalPosts }
+          	</div>
+          </div>
         </div>
-         <div class="row mb-5">
+          <div class="row mb-5">
         
 			 <table class="table table-hover tablesorter text-center" id="users_tb">
 			 	<thead>
@@ -171,128 +239,214 @@ $(document).ready(function(){
 				 			번 호
 				 		</th>
 				 		<th>
-				 			아이디
-				 		</th>
-				 		<th>
-				 			닉네임
+				 			이메일
 				 		</th>
 				 		<th>
 				 			이 름
 				 		</th>
 				 		<th>
-				 			이메일
+				 			닉네임
 				 		</th>
 				 		<th>
 				 			경 고
 				 		</th>
 				 		<th>
-				 			삭 제
+				 			블 랙
 				 		</th>
 				 	</tr>
 				 </thead>
 				 <tbody>
+					<c:forEach items="${userlist}" var="userList"> 
+					<%-- <%for(int i=0; i<userlist.size(); i++){ %> --%>
 			 		<tr>
 				 		<td>
-				 			1
+				 		   ${userList.user_num} 
+				 		   <%-- <%=userlist.get(i).getUser_num() %> --%>
 				 		</td>
 				 		<td>
-				 			ab
+				 		   ${userList.user_username } 
+				 		 	<%-- <%=userlist.get(i).getUser_username() %> --%>
 				 		</td>
 				 		<td>
-				 			가나아
+				 		  ${userList.user_name }
+				 			<%--  <%=userlist.get(i).getUser_name() %> --%>
 				 		</td>
 				 		<td>
-				 			이 름
+				 		 ${userList.user_nickname }
+				 			<%--  <%=userlist.get(i).getUser_nickname() %> --%>
 				 		</td>
 				 		<td>
-				 			dd
+				 			<input type="button" class="btns" id="warning_btn${userList.user_num }" onclick="warning_click(${userList.user_num});" value="${userList.user_warning }"/>
 				 		</td>
 				 		<td>
-				 			2
-				 		</td>
-				 		<td>
-				 			삭 제
-				 		</td>
+				 			<input type="button" class="btns" id="black_btn${userList.user_num }" <%-- onclick="black_click(${userList.user_num});" --%> value="${userList.user_black }"/> 
+				 		</td> 
 				 	</tr>
-				 	<tr>
-				 		<td>
-				 			4
-				 		</td>
-				 		<td>
-				 			aaa
-				 		</td>
-				 		<td>
-				 			나거거
-				 		</td>
-				 		<td>
-				 			이이이
-				 		</td>
-				 		<td>
-				 			age
-				 		</td>
-				 		<td>
-				 			2
-				 		</td>
-				 		<td>
-				 			삭 제
-				 		</td>
-				 	</tr>
-				 	<tr>
-				 		<td>
-				 			2
-				 		</td>
-				 		<td>
-				 			bdb
-				 		</td>
-				 		<td>
-				 			닉네임
-				 		</td>
-				 		<td>
-				 			이 름
-				 		</td>
-				 		<td>
-				 			qg
-				 		</td>
-				 		<td>
-				 			0
-				 		</td>
-				 		<td>
-				 			삭 제
-				 		</td>
-				 	</tr>
-				 	<tr>
-				 		<td>
-				 			3
-				 		</td>
-				 		<td>
-				 			xdwg
-				 		</td>
-				 		<td>
-				 			닉네임
-				 		</td>
-				 		<td>
-				 			이 름
-				 		</td>
-				 		<td>
-				 			whtj
-				 		</td>
-				 		<td>
-				 			3
-				 		</td>
-				 		<td>
-				 			삭 제
-				 		</td>
-				 	</tr>
+					  </c:forEach>
+					  <%-- <%} %> --%>
 				 </tbody>
 				 
 			 </table>
 		
 		</div>
+		
+		<!-- 페이징 -->
+		<div class="row" style="font-size:23px;">
+				<div class="col-12 text-center">
+					<%if(startPage != 1){ %>
+					<a href='javascript:movePage("${startPage-10 }")'><i class="fas fa-angle-left" style="color:#FFC69F;"></i></a>
+					&nbsp;
+					&nbsp;
+					<%}%>
+					<%for(int i=startPage; i<=endPage; i++){
+						if (i==curPage){
+					%>
+						<a href='javascript:movePage(<%=i %>)' style="color:white;"><%=i %></a>
+						&nbsp;
+						&nbsp;
+					<%}else{ %>
+						<a href='javascript:movePage(<%=i %>)'><%=i %></a>
+						&nbsp;
+						&nbsp;
+					<%}} %>
+					<%if(endPage != totalPage){ %>
+					<a href='javascript:movePage("${endPage+1 }")'><i class="fas fa-angle-right"  ></i></a>
+					<%} %>
+				</div>	
+			</div>
+			<div class="row" style="margin-top:5%;"></div> 
 		</div>
 	</div>
       
 
     </div>
+    
+<script type="text/javascript">
+var csrfHeaderName ="${_csrf.headerName}"; 
+var csrfTokenValue="${_csrf.token}";
+
+var modal = document.getElementById('write_msg');
+var span1 = document.getElementsByClassName("close")[0];
+
+
+	function black_click(userNum){
+		var black_cnt = document.getElementById('black_btn' + userNum).value;
+		console.log(black_cnt);
+		
+	 		$.ajax({
+				url:"/admin_black",
+				type:"POST",
+				dataType:"text",
+				data: {"user_num":userNum, "user_black":black_cnt, "user_username" : userName},
+			    beforeSend: function(xhr) {
+				          xhr.setRequestHeader(csrfHeaderName, csrfTokenValue);
+				},
+				success:function(data){
+					console.log(userNum);
+					console.log(typeof data);
+					console.log("aaaa: " +black_cnt);
+					
+				/* 	if(black_cnt == 0){
+						
+						var data_plus = parseInt(data)+1;
+						console.log(typeof data_plus);
+						console.log('result1 : ' + data_plus);
+						
+						document.getElementById('black_btn' + userNum).value = '1';
+						
+					}else{ */
+						/* var data_m = parseInt(data)-1;
+						console.log(typeof data_m);
+						console.log('result2 : ' + data_m); */
+					if(black_cnt == 1){	
+						document.getElementById('black_btn' + userNum).value = '0';
+						
+					}
+					
+				},
+				error:function(request, status, error){
+					console.log("code : " + request.status +"\n" + "message : " + request.responseText + "\n" + " error : " + error);
+					alert("실패" + userNum + "&" + black_cnt);
+				}
+			}); 
+			 
+	}
+
+	
+	function warning_click(userNum){
+		
+		var warning_cnt = document.getElementById('warning_btn' + userNum).value;
+		var black_cnt = document.getElementById('black_btn' + userNum).value;
+		
+		var warning_btn = document.getElementById('warning_btn' + userNum);
+		console.log(warning_cnt);
+
+	/* 	var black_name =  document.getElementById('black_name' + userNum).value;
+		console.log(black_name); */
+		
+ 		$.ajax({
+			url:"/admin_warning",
+			type:"POST",
+			dataType:"text",
+			data: {"user_num":userNum, "user_warning":warning_cnt, "user_black": black_cnt},
+		    beforeSend: function(xhr) {
+			          xhr.setRequestHeader(csrfHeaderName, csrfTokenValue);
+			},
+			success:function(data){
+				console.log(userNum);
+				console.log(typeof data);
+				console.log("warning: " + warning_cnt);
+				
+				if(warning_cnt == 0){
+					
+					document.getElementById('warning_btn' + userNum).value = 1;
+					
+					/* modal.style.display = "block";
+					span1.onclick = function() { modal.style.display = "none"; } */
+
+				}else  if(warning_cnt==1){
+					
+					document.getElementById('warning_btn' + userNum).value = 2;
+					/* modal.style.display = "block";
+					span1.onclick = function() { modal.style.display = "none"; } */
+					
+				}else if(warning_cnt==2){
+				
+					document.getElementById('warning_btn' + userNum).value = 3;
+					document.getElementById('black_btn' + userNum).value = 1;
+				
+				/* 	document.getElementById('black_name' + userNum).value= userNum;  
+					
+					console.log(document.getElementById('black_name' + userNum).value); */
+					
+					/* modal.style.display = "block";
+					span1.onclick = function() { modal.style.display = "none";  } */
+				}
+				
+			},
+			error:function(request, status, error){
+				console.log("code : " + request.status +"\n" + "message : " + request.responseText + "\n" + " error : " + error);
+				alert("실패" + userNum + "&" + warning_cnt);
+			}
+		}); 
+	}
+</script>
+
+
+<script type="text/javascript">
+	//페이지 이동 함수
+	var search = "${search}"
+	function movePage(page){
+		//검색 안한 경우
+		if(search==""){
+			location.href="admin_users?page="+page;
+		}
+		//검색한 경우
+		else{
+			location.href="admin_searchuserlist?page="+page+"&search="+search;
+		}
+	}
+</script>
     
           
            

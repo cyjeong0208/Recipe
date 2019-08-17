@@ -32,7 +32,9 @@
 				<div class="modal-body" style="padding: 40px 50px;">
 					<form role="form" method = "get" action="#">
 					<fieldset>
-						<div class="form-group">
+					
+						
+						<!-- <div class="form-group">
 							<label for="user1_nickname">연정쓰</label> 
 								<input type="text" class="form-control ml-4 mb-2" id="user1_nickname" name = "user1_nickname"  value="안녕하세요!!" 
 									style="width:90%;" readonly>
@@ -53,7 +55,7 @@
 								<input type="text" class="form-control ml-4 mb-2" id="user1_nickname" name = "user1_nickname"  value="어느 마트가 편하세요?" 
 									style="width:90%;" readonly>
 						</div>
-						
+						 -->
 						</fieldset>
 						</form>
 						

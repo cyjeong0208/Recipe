@@ -1,5 +1,6 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
 	pageEncoding="UTF-8"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <!DOCTYPE html>
 <html>
 <head>
@@ -7,17 +8,17 @@
 <meta name="viewport"
 	content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
-<link rel="stylesheet" href="../resources/css/bootstrap.min.css">
-<link rel="stylesheet" href="../resources/css/magnific-popup.css">
-<link rel="stylesheet" href="../resources/css/jquery-ui.css">
-<link rel="stylesheet" href="../resources/css/owl.carousel.min.css">
-<link rel="stylesheet" href="../resources/css/owl.theme.default.min.css">
+<link rel="stylesheet" href="resources/css/bootstrap.min.css">
+<link rel="stylesheet" href="resources/css/magnific-popup.css">
+<link rel="stylesheet" href="resources/css/jquery-ui.css">
+<link rel="stylesheet" href="resources/css/owl.carousel.min.css">
+<link rel="stylesheet" href="resources/css/owl.theme.default.min.css">
 
-<link rel="stylesheet" href="../resources/css/bootstrap-datepicker.css">
+<link rel="stylesheet" href="resources/css/bootstrap-datepicker.css">
 
-<link rel="stylesheet" href="../resources/css/aos.css">
+<link rel="stylesheet" href="resources/css/aos.css">
 
-<link rel="stylesheet" href="../resources/css/style.css">
+<link rel="stylesheet" href="resources/css/style.css">
 
 <link href="https://fonts.googleapis.com/css?family=Jua&display=swap"
 	rel="stylesheet">
@@ -125,7 +126,7 @@ iframe {
 	background:
 		url("https://t1.daumcdn.net/cfile/tistory/272B024E567617E839")
 		no-repeat;
-	background-position: 42% 50%;
+	background-position: 43% 40%;
 	background-size: 16%;
 }
 
@@ -141,6 +142,13 @@ iframe {
 	text-align: center;
 }
 
+.videoAtag{
+	color: #939393;
+}
+.videoAtag:hover {
+  color: #FFC69F;
+  text-decoration: none; 
+}
 .thumbnail {
 	width: 100%;
 	height: 100%;
@@ -168,35 +176,40 @@ iframe {
 
 <body>
 
-	<script src="../resources/js/jquery-3.3.1.min.js"></script>
-	<script src="../resources/js/jquery-ui.js"></script>
-	<script src="../resources/js/popper.min.js"></script>
-	<script src="../resources/js/bootstrap.min.js"></script>
-	<script src="../resources/js/owl.carousel.min.js"></script>
-	<script src="../resources/js/jquery.magnific-popup.min.js"></script>
-	<script src="../resources/js/jquery.sticky.js"></script>
-	<script src="../resources/js/jquery.waypoints.min.js"></script>
-	<script src="../resources/js/jquery.animateNumber.min.js"></script>
-	<script src="../resources/js/aos.js"></script>
+	<script src="resources/js/jquery-3.3.1.min.js"></script>
+	<script src="resources/js/jquery-ui.js"></script>
+	<script src="resources/js/popper.min.js"></script>
+	<script src="resources/js/bootstrap.min.js"></script>
+	<script src="resources/js/owl.carousel.min.js"></script>
+	<script src="resources/js/jquery.magnific-popup.min.js"></script>
+	<script src="resources/js/jquery.sticky.js"></script>
+	<script src="resources/js/jquery.waypoints.min.js"></script>
+	<script src="resources/js/jquery.animateNumber.min.js"></script>
+	<script src="resources/js/aos.js"></script>
 
-	<script src="../resources/js/main.js"></script>
+	<script src="resources/js/main.js"></script>
 <jsp:include page="../headNfoot/header.jsp" />
-
+	<div class="subsite-section bg-light" style="padding-top:1.5em;">
 	<div class="container">
 		<div class="row align-items-center justify-content-center">
 			<div class="col-md-12 col-lg-7 text-center search">
 
-				<form id="searchText" method="post">
-					<span class="icon"> <input TYPE="IMAGE" id="search_icon"
-						src="../img/main/search.png" value="Submit">
-					</span> <input id="recipe_search" name="recipe_search"
-						placeholder="영상을 찾아보아요">
-				</form>
+				<form id="searchText" action="/foodvideo_search" method="get">
+                  <span class="icon"> 
+                     <input TYPE="IMAGE" id="search_icon" src="img/main/search.png" value="Submit">
+                  </span> 
+                     <input type="text" id="recipe_search" name="recipe_search" 
+                     value='<c:out value="${cri.recipe_search }"/>' placeholder="영상을 검색하세요."/>
+               </form>
+               <form id='actionForm' action="/foodvideo_search" method="get">
+                  <input type="hidden" name='recipe_search' value='<c:out value="${cri.recipe_search }"/>'/>
+               </form>
+               
 			</div>
 		</div>
 	</div>
 
-	<div class="subsite-section bg-light" style="margin-top: -5%">
+
 		<div class="container" style="margin-top: -2.5%">
 			<div
 				style="float: left; margin-left: -1%; font-size: 150%; color: #FFC69F;">인기영상</div>
@@ -204,86 +217,33 @@ iframe {
 			<div class="rowBlock rounded ">
 				<div class="row mb">
 					<div class="owl-carousel owl-theme">
+						<c:forEach var="fvVO" items="${bestList }">
+							<div class="col-auto">
+								<a class="videoAtag" href='javascript:goDetail("${fvVO.video_num }")'> <span
+								class="play_button"></span> <img class="preview_img"
+								src="${fvVO.video_thumbnail }"
+								alt="preview_img"> <span class="title">${fvVO.video_title }</span>
+								</a>
+							</div>
+						</c:forEach> 
+						<!-- 
 						<div class="col-auto">
-							<!--  <video class="img-fluid" onmouseover="this.play()"
+							 <video class="img-fluid" onmouseover="this.play()"
 								onmouseout="this.pause()" autobuffer="true" width="400px"
-								height="300px" muted src="https://www.youtube.com/embed/Lg2HD5aZYcM">   -->
-							<!--  <source
+								height="300px" muted src="https://www.youtube.com/embed/Lg2HD5aZYcM">  
+							 <source
 									src="img/foodvideo_test/KakaoTalk_Video_20190702_1548_24_188.mp4"
 									type="video/mp4">
 								<source
 									src="img/foodvideo_test/KakaoTalk_Video_20190702_1548_24_188.ogg"
-									type="video/ogg">   -->
-							<!-- </video>   -->
+									type="video/ogg">  
+							</video>  
 							<a href="foodvideo_detail.jsp"> <span
 								class="play_button"></span> <img class="preview_img"
 								src="http://img.youtube.com/vi/Lg2HD5aZYcM/hqdefault.jpg"
 								alt="preview_img"></a> <span class="title">강식당 - 아기짜장밥</span>
-						</div>
-						<div class="col-auto">
-							<!-- <video class="img-fluid" onmouseover="this.play()"
-								onmouseout="this.pause()" autobuffer="true" width="400px"
-								height="300px" muted>
-								 <source
-									src="img/foodvideo_test/KakaoTalk_Video_20190702_1548_24_188.mp4"
-									type="video/mp4">
-								<source
-									src="img/foodvideo_test/KakaoTalk_Video_20190702_1548_24_188.ogg"
-									type="video/ogg"> 
-							 </video> -->
-							<a href="foodvideo_detail.jsp"> <span
-								class="play_button"></span> <img class="preview_img"
-								src="http://img.youtube.com/vi/Lg2HD5aZYcM/hqdefault.jpg"
-								alt="preview_img"></a> <span class="title">강식당 - 아기짜장밥</span>
-						</div>
-						<div class="col-auto">
-							<!--  <video class="img-fluid" onmouseover="this.play()"
-								onmouseout="this.pause()" autobuffer="true" width="400px"
-								height="300px" muted> 
-								 <source
-									src="img/foodvideo_test/KakaoTalk_Video_20190702_1548_24_188.mp4"
-									type="video/mp4">
-								<source
-									src="img/foodvideo_test/KakaoTalk_Video_20190702_1548_24_188.ogg"
-									type="video/ogg"> 
-							 </video>  -->
-							<a href="foodvideo_detail.jsp"> <span
-								class="play_button"></span> <img class="preview_img"
-								src="http://img.youtube.com/vi/Lg2HD5aZYcM/hqdefault.jpg"
-								alt="preview_img"></a> <span class="title">강식당 - 아기짜장밥</span>
-						</div>
-						<div class="col-auto">
-							<!--  <video class="img-fluid" onmouseover="this.play()"
-								onmouseout="this.pause()" autobuffer="true" width="400px"
-								height="300px" muted>
-								 <source
-									src="img/foodvideo_test/KakaoTalk_Video_20190702_1548_24_188.mp4"
-									type="video/mp4">
-								<source
-									src="img/foodvideo_test/KakaoTalk_Video_20190702_1548_24_188.ogg"
-									type="video/ogg"> 
-						</video>  -->
-							<a href="foodvideo_detail.jsp"> <span
-								class="play_button"></span> <img class="preview_img"
-								src="http://img.youtube.com/vi/Lg2HD5aZYcM/hqdefault.jpg"
-								alt="preview_img"></a> <span class="title">강식당 - 아기짜장밥</span>
-						</div>
-						<div class="col-auto">
-							<!-- video class="img-fluid" onmouseover="this.play()"
-								onmouseout="this.pause()" autobuffer="true" width="400px"
-								height="300px" muted>
-								 <source
-									src="img/foodvideo_test/KakaoTalk_Video_20190702_1548_24_188.mp4"
-									type="video/mp4">
-								<source
-									src="img/foodvideo_test/KakaoTalk_Video_20190702_1548_24_188.ogg"
-									type="video/ogg"> 
-							</video>  -->
-							<a href="foodvideo_detail.jsp"> <span
-								class="play_button"></span> <img class="preview_img"
-								src="http://img.youtube.com/vi/Lg2HD5aZYcM/hqdefault.jpg"
-								alt="preview_img"></a> <span class="title">강식당 - 아기짜장밥</span>
-						</div>
+						</div> 
+						-->
 					</div>
 				</div>
 			</div>
@@ -294,170 +254,27 @@ iframe {
 					영상</div>
 				<br>
 				<br>
-				<div class="row" id="thumbnails"></div>
-
+				<div class="row" id="thumbnails">
+				<c:forEach var="fvVO" items="${newList }">
+					<div class="col-lg-4 col-md-6 mb-4 mb-lg-0">
+						<div class="video-team-member-1 text-center rounded">
+							<a class='videoAtag' href='javascript:goDetail("${fvVO.video_num }")'>
+							<span class="play_button2"></span>
+							<img class="thumbnail" src="${fvVO.video_thumbnail }">
+							<br><div style="margin-top:2%;">${fvVO.video_title }</div></a>
+							<br>
+							<div style="text-align:center; font-size:0.8rem;">찜횟수 ${fvVO.video_mark_cnt}
+							 &nbsp; &nbsp; &nbsp; &nbsp;&nbsp;&nbsp; &nbsp; &nbsp;&nbsp;&nbsp; &nbsp; &nbsp;&nbsp; &nbsp; &nbsp;
+							 ${fvVO.firstdate }</div>
+						</div>
+					</div>
+				</c:forEach> 
 				<!-- 	<div class="row">
-					<div class="col-lg-4 col-md-6 mb-4 mb-lg-0">
-						<div class="video-team-member-1 text-center rounded">
-							<video class="img-fluid" onmouseover="this.play()"
-								onmouseout="this.pause()" autobuffer="true" width="400px"
-								height="300px" muted>
-								<source
-									src="img/foodvideo_test/KakaoTalk_Video_20190702_1548_24_188.mp4"
-									type="video/mp4">
-								<source
-									src="img/foodvideo_test/KakaoTalk_Video_20190702_1548_24_188.ogg"
-									type="video/ogg">
-							</video>
-							<span><강식당> <br>
-								김치밥</span>
-						</div>
-					</div>
-
-					<div class="col-lg-4 col-md-6 mb-4 mb-lg-0">
-						<div class="video-team-member-1 text-center rounded">
-							<video class="img-fluid" onmouseover="this.play()"
-								onmouseout="this.pause()" autobuffer="true" width="400px"
-								height="300px" muted>
-								<source
-									src="img/foodvideo_test/KakaoTalk_Video_20190702_1548_24_188.mp4"
-									type="video/mp4">
-								<source
-									src="img/foodvideo_test/KakaoTalk_Video_20190702_1548_24_188.ogg"
-									type="video/ogg">
-							</video>
-							<span><강식당> <br>
-								김치밥</span>
-						</div>
-					</div>
-
-					<div class="col-lg-4 col-md-6 mb-4 mb-lg-0">
-						<div class="video-team-member-1 text-center rounded">
-							<video class="img-fluid" onmouseover="this.play()"
-								onmouseout="this.pause()" autobuffer="true" width="400px"
-								height="300px" muted>
-								<source
-									src="img/foodvideo_test/KakaoTalk_Video_20190702_1548_24_188.mp4"
-									type="video/mp4">
-								<source
-									src="img/foodvideo_test/KakaoTalk_Video_20190702_1548_24_188.ogg"
-									type="video/ogg">
-							</video>
-							<span><강식당> <br>
-								김치밥</span>
-						</div>
-					</div>
-				</div>
-
-				<div class="row">
-					<div class="col-lg-4 col-md-6 mb-4 mb-lg-0">
-						<div class="video-team-member-1 text-center rounded">
-							<video class="img-fluid" onmouseover="this.play()"
-								onmouseout="this.pause()" autobuffer="true" width="400px"
-								height="300px" muted>
-								<source
-									src="img/foodvideo_test/KakaoTalk_Video_20190702_1548_24_188.mp4"
-									type="video/mp4">
-								<source
-									src="img/foodvideo_test/KakaoTalk_Video_20190702_1548_24_188.ogg"
-									type="video/ogg">
-							</video>
-							<span><강식당> <br>
-								김치밥</span>
-						</div>
-					</div>
-
-					<div class="col-lg-4 col-md-6 mb-4 mb-lg-0">
-						<div class="video-team-member-1 text-center rounded">
-							<video class="img-fluid" onmouseover="this.play()"
-								onmouseout="this.pause()" autobuffer="true" width="400px"
-								height="300px" muted>
-								<source
-									src="img/foodvideo_test/KakaoTalk_Video_20190702_1548_24_188.mp4"
-									type="video/mp4">
-								<source
-									src="img/foodvideo_test/KakaoTalk_Video_20190702_1548_24_188.ogg"
-									type="video/ogg">
-							</video>
-							<span><강식당> <br>
-								김치밥</span>
-						</div>
-					</div>
-
-					<div class="col-lg-4 col-md-6 mb-4 mb-lg-0">
-						<div class="video-team-member-1 text-center rounded">
-							<video class="img-fluid" onmouseover="this.play()"
-								onmouseout="this.pause()" autobuffer="true" width="400px"
-								height="300px" muted>
-								<source
-									src="img/foodvideo_test/KakaoTalk_Video_20190702_1548_24_188.mp4"
-									type="video/mp4">
-								<source
-									src="img/foodvideo_test/KakaoTalk_Video_20190702_1548_24_188.ogg"
-									type="video/ogg">
-							</video>
-							<span><강식당> <br>
-								김치밥</span>
-						</div>
-					</div>
-				</div>
-
-				<div class="row">
-					<div class="col-lg-4 col-md-6 mb-4 mb-lg-0">
-						<div class="video-team-member-1 text-center rounded">
-							<video class="img-fluid" onmouseover="this.play()"
-								onmouseout="this.pause()" autobuffer="true" width="400px"
-								height="300px" muted>
-								<source
-									src="img/foodvideo_test/KakaoTalk_Video_20190702_1548_24_188.mp4"
-									type="video/mp4">
-								<source
-									src="img/foodvideo_test/KakaoTalk_Video_20190702_1548_24_188.ogg"
-									type="video/ogg">
-							</video>
-							<span><강식당> <br>
-								김치밥</span>
-						</div>
-					</div>
-
-					<div class="col-lg-4 col-md-6 mb-4 mb-lg-0">
-						<div class="video-team-member-1 text-center rounded">
-							<video class="img-fluid" onmouseover="this.play()"
-								onmouseout="this.pause()" autobuffer="true" width="400px"
-								height="300px" muted>
-								<source
-									src="img/foodvideo_test/KakaoTalk_Video_20190702_1548_24_188.mp4"
-									type="video/mp4">
-								<source
-									src="img/foodvideo_test/KakaoTalk_Video_20190702_1548_24_188.ogg"
-									type="video/ogg">
-							</video>
-							<span><강식당> <br>
-								김치밥</span>
-						</div>
-					</div>
-
-					<div class="col-lg-4 col-md-6 mb-4 mb-lg-0">
-						<div class="video-team-member-1 text-center rounded">
-							<video class="img-fluid" onmouseover="this.play()"
-								onmouseout="this.pause()" autobuffer="true" width="400px"
-								height="300px" muted>
-								<source
-									src="img/foodvideo_test/KakaoTalk_Video_20190702_1548_24_188.mp4"
-									type="video/mp4">
-								<source
-									src="img/foodvideo_test/KakaoTalk_Video_20190702_1548_24_188.ogg"
-									type="video/ogg">
-							</video>
-							<span><강식당> <br>
-								김치밥</span>
-						</div>
-					</div>
 				</div> -->
 			</div>
 		</div>
 	</div>
-
+</div>
 	<jsp:include page="../headNfoot/footer.jsp" />
 
 
@@ -545,41 +362,65 @@ iframe {
 		siteCarousel();
 	</script>
 
-	<script type="text/javascript">
-		$(document).ready(function() {
-			var thumbnails = document.getElementById("thumbnails");
-					// 플레이리스트 아이디들
-					var x = "PLoABXt5mipg6mIdGKBuJlv5tmQFAQ3OYr,PLoABXt5mipg4vsOpJb0Aeldlj3A6xq4jQ,PLoABXt5mipg4lPwTJdH3Bv_4NRZHIhAQK,PLA8tEd3EWkFj_s6n5OnAIBVykU7x2sAdm";
-					var playlistIds = x.split(',');
-					for ( var l in playlistIds) {
-						$.get(
-							"https://www.googleapis.com/youtube/v3/playlistItems",{
-								part : 'snippet',
-								maxResults : 50,
-								playlistId : playlistIds[l],
-								key : 'AIzaSyAmLeDRgbtu16JR5E1s-4Z_lOkq4NemDmY'
-							}, function(data) {
-								$.each(data.items,function(i,item) {
-									var date = item.snippet.publishedAt;
-							        var publicDate = date.split('T');
-									var output = '';
+<script>
+var csrfHeaderName ="${_csrf.headerName}"; 
+var csrfTokenValue="${_csrf.token}";
 
-									output += '<div class="col-lg-4 col-md-6 mb-4 mb-lg-0">'
-									output += '<div class="video-team-member-1 text-center rounded">'
-									// 수정 필요
-									output += '<a href="이동위치?'	+ item.snippet.resourceId.videoId + '">';
-									output += '<span class="play_button2"></span>';
-									output += '<img class="thumbnail" src="'+item.snippet.thumbnails.medium.url+'"></a>';
-									output += '<br><div>' + item.snippet.title + '</div>';
-									output += '<br><div style="text-align:right; font-size:0.8rem;">' + publicDate[0] + '</div>';
-									output += '</div>';
-									output += '</div>';
-									thumbnails.innerHTML += output;
-					 })
-				});
-			}
+// 특정 영상 선택시 detail로 이동
+function goDetail(video_num){
+	location.href="foodvideo_detail?video_num="+video_num;
+}
+
+// 무한스크롤
+var startNum = 9;
+$(document).scroll(function() {
+	// footer높이만큼 전체크기에서 제외
+	var maxHeight = $(document).height()-$(".site-footer").outerHeight();
+	var currentScroll = $(window).scrollTop() + $(window).height();
+	if(maxHeight <= currentScroll+50){
+		$.ajax({
+			type:"POST",
+			url:"/getMoreNewlist",
+			async:false,
+			data:{"startNum":startNum},
+			dataType:"json",
+			beforeSend: function(xhr) {
+                xhr.setRequestHeader(csrfHeaderName, csrfTokenValue);
+            },
+			success: function(data){
+				 $.each(data, function(index, item){
+					 // date객체는 자바스크립트에서 본인들만의 형식으로 변환되므로, 아래와같은 변환과정을 거쳐야한다.
+					 var d = new Date(item.firstdate);
+					 year = d.getFullYear();
+					 month = d.getMonth()+1
+					 if(month<10){
+						 month = "0"+(d.getMonth()+1);
+					 }
+					 day = d.getDate();
+					 if(day<10){
+						 day = "0"+(d.getDate());
+					 }
+					 var date = year+"-"+month+"-"+day;
+					 //var day = d.getFullYear()+"-"+(d.getMonth() + 1)+"-"+d.getDate();
+					$("#thumbnails").append("<div class='col-lg-4 col-md-6 mb-4 mb-lg-0'>"
+						+"<div class='video-team-member-1 text-center rounded'>"
+						+"<a class='videoAtag' href='javascript:goDetail("+item.video_num+")'>"
+						+"<span class='play_button2'></span>"
+						+"<img class='thumbnail' src='"+item.video_thumbnail+"'style='height:220px;'>"
+						+"<br><div  style='margin-top:2%;'>"+item.video_title+"</div></a>"
+						+"<br><div style='text-align:center; font-size:0.8rem;'>찜횟수 " +item.video_mark_cnt
+						+"&nbsp; &nbsp; &nbsp; &nbsp;&nbsp;&nbsp; &nbsp; &nbsp;&nbsp; &nbsp; &nbsp;&nbsp; &nbsp; &nbsp;&nbsp;"
+						+ date+"</div>"
+						+"</div>"
+						+"</div>"
+					);
+	             });
+			},
 		});
-	</script>
+		startNum += 6;
+	}
+});
+</script>
 
 </body>
 </html>

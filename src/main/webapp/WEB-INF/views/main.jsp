@@ -3,6 +3,7 @@
 <%@ taglib uri = "http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri = "http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
 <%@ taglib prefix="sec" uri="http://www.springframework.org/security/tags" %>
+<%@ page import = "java.util.ArrayList" %>
 
 <%
 	String[] search_ph = {"당근", "감자", "오이", "양파", "콩나물", "두부", "햄", "피망", "파프리카", "버섯", 
@@ -10,7 +11,26 @@
 	int ran = (int)(Math.random()* search_ph.length);
 	String ran_ph = search_ph[ran];
 
-%>  
+	String kakao_userid = (String)session.getAttribute("userId");
+	String kakao_usernickname = (String)session.getAttribute("userNickname");
+%>
+
+<%
+ArrayList<String> hp_img = (ArrayList<String>)request.getAttribute("hp_img");
+ArrayList<String> hp_title = (ArrayList<String>)request.getAttribute("hp_title");
+ArrayList<String> hp_cost = (ArrayList<String>)request.getAttribute("hp_cost");
+ArrayList<String> hp_buy = (ArrayList<String>)request.getAttribute("hp_buy");
+
+ArrayList<String> lt_img = (ArrayList<String>)request.getAttribute("lt_img");
+ArrayList<String> lt_title = (ArrayList<String>)request.getAttribute("lt_title");
+ArrayList<String> lt_buy = (ArrayList<String>)request.getAttribute("lt_buy");
+
+ArrayList<String> em_img = (ArrayList<String>)request.getAttribute("em_img");
+ArrayList<String> em_title = (ArrayList<String>)request.getAttribute("em_title");
+ArrayList<String> em_cost = (ArrayList<String>)request.getAttribute("em_cost");
+ArrayList<String> em_buy = (ArrayList<String>)request.getAttribute("em_buy");
+%>
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -132,19 +152,18 @@ body {
 /* Modal Content/Box */
 .modal-content {
 	background-color: #fefefe;
-	margin: 1% auto; /* 15% from the top and centered */
-	padding: 1%;
+	margin: 8% auto; /* 15% from the top and centered */
+	padding: 2%;
 	border: 1px solid #888;
 	width: 50%; /* Could be more or less, depending on screen size */
 	height: auto;
 }@media (max-width:500px){
 	.modal-content{
-		margin: 2%; /* 15% from the top and centered */
+		margin: 2% 5%; /* 15% from the top and centered */
 		padding: 1%;
 		width: 93%;
 	}
 }
-
 .find-modal-content {
 	background-color: #fefefe;
 	margin: 8% auto; /* 15% from the top and centered */
@@ -159,6 +178,7 @@ body {
 		width: 93%;
 	}
 }
+
 
 
 .new-modal-content {
@@ -198,6 +218,21 @@ body {
 }@media (max-width:500px){
 	.sign_up_content{
 		margin: 2%; /* 15% from the top and centered */
+		padding: 1%;
+		width: 93%;
+	}
+}
+
+.kakao_sign_up_content {
+	background-color: #fefefe;
+	margin: 8% auto; /* 15% from the top and centered */
+	padding: 2%;
+	border: 1px solid #888;
+	width: 50%; /* Could be more or less, depending on screen size */
+	height: auto;
+}@media (max-width:500px){
+	.find-modal-content{
+		margin: 2% 5%; /* 15% from the top and centered */
 		padding: 1%;
 		width: 93%;
 	}
@@ -331,6 +366,41 @@ label#menu_label, #menu{
 	opacity: 0.9;
 } */
 
+.videoAtag{
+	color: #939393;
+}
+
+.videoAtag:hover{
+	color: #FFC69F;
+}
+
+.preview_img{
+	width:100%;
+}
+
+/* 모달 스크롤바 다 지워버림 */
+.modal::-webkit-scrollbar { 
+    display: none; 
+}
+
+/* 메시지함 관련 */
+.messageC{
+	letter-spacing: 1px;
+    word-spacing: 3px;
+    line-heigh: 35px;
+}
+@media (max-width:500px){
+	#message_tb{
+		font-size:5px;
+	}
+	#msg_write{
+		font-size:1rem;
+	}
+	.messageHeads{
+		font-size:1rem !important;
+	}
+}
+
 </style>
 </head>
 <body data-spy="scroll" data-target=".site-navbar-target" data-offset="300">
@@ -377,17 +447,13 @@ label#menu_label, #menu{
 	});
 
 </script>
-    
-  <%
-		//session에 객체로 아이디와유저네임을 넣어서 불러올수 잇게 
-		String id = (String)session.getAttribute("username");
-	 	
-		%>
-		<jsp:include page = "customLogin.jsp"/>
+    <jsp:include page = "customLogin.jsp"/>
 		
 		<jsp:include page = "email_signUp.jsp"/>
 		
 		<jsp:include page = "signUp.jsp"/>
+		
+		<jsp:include page = "kakaosignUp.jsp"/>
 		
 		<jsp:include page = "findPW.jsp"/>
 		
@@ -476,10 +542,27 @@ label#menu_label, #menu{
 					<!-- 비로그인 시  -->
 					<sec:authorize access="isAnonymous()">
 						
-						
-						<li><button class="nav-link" id="login" style="border:none; color:#65737e; background:none">로그인</button></li>
-                  		<li><button class="nav-link" id="signup" style="border:none; color:#65737e; background:none">회원가입</button></li>
-                
+						<%
+						// 카카오톡 로그인 
+							if(kakao_userid != null){
+						%>
+						<li>
+								<a href="/myPage_index"class="nav-link" id="nickname" style="border:none; color:#65737e; background:none">
+									<%=kakao_usernickname %>
+									
+								</a>
+							</li>
+	                  		<li>
+								<form action = "/kakao_logout" method = "post">   
+									<input type = "hidden" name = "${_csrf.parameterName }" value = "${_csrf.token }"/>               		
+	                  				<button class="nav-link" id="logout" style="border:none; color:#65737e; background:none">로그아웃</button>
+	                  			</form>
+	                  		</li>
+	                  		
+	                  	<%}else{ %>
+							<li><button class="nav-link" id="login" style="border:none; color:#65737e; background:none">로그인</button></li>
+	                  		<li><button class="nav-link" id="signup" style="border:none; color:#65737e; background:none">회원가입</button></li>
+	                	<%} %>
 					</sec:authorize>
                   </ul>
               </nav>
@@ -521,7 +604,7 @@ label#menu_label, #menu{
       
                 <!-- <span class="icon"><img src="img/main/search.png" /></span>
                 <input type="text" id="recipe_search" /> -->
-               <form id="searchText" method="post">
+               <form id="searchText" method="post" action="/recipe_index">
 					<!-- <input type="submit" id="search_btn" name="search_btn" >
 					<span class="icon"><img src="img/main/search.png" /></span> -->
 		
@@ -532,6 +615,7 @@ label#menu_label, #menu{
 					</span>
 					<label for="recipe_search">지금은 <%=ran_ph %> time!!!</label>
 					<input id="recipe_search" name="recipe_search">
+					<input type="hidden" name = "${_csrf.parameterName }" value = "${_csrf.token }"/>
 				</form>
             </div>
           </div>
@@ -562,84 +646,33 @@ label#menu_label, #menu{
           <div class="col-12 text-center">
             <div class="block-heading-1">
               <h2>요 리 영 상</h2>
-              <a href = "foodvideo/foodvideo_index.jsp">
+              <a href = "foodvideo_index">
             		<h3 class="text-right font-size-17 h4 mb-2"> + 더보기</h3></a>
             </div>
           </div>
         </div>
         <!-- top 6 영상출력  -->
-        <div class="row">
+        <div class="row fv_best">
+<%--            <c:forEach var="bestfv" items="${Main_bestList }">
        <div class="col-lg-4 col-md-6 mb-4 mb-lg-0" data-aos="fade-up" >
             <div class="video-team-member-1 text-center rounded">
      		<!-- 마우스오버 시 재생 마우스아웃 시 스탑  -->
-          	<video class="img-fluid" onmouseover="this.play()" onmouseout="this.pause()" autobuffer="true" width="400px" height="300px"muted>
+          	<!-- <video class="img-fluid" onmouseover="this.play()" onmouseout="this.pause()" autobuffer="true" width="400px" height="300px"muted>
           		<source src="img/foodvideo_test/foodvideo1.mp4" type="video/mp4" >
 		   		<source src="img/foodvideo_test/foodvideo1.ogg" type="video/ogg" >
-          	</video>
-           
+          	</video> -->
+				 <div class="row col-auto"> 
+					<a class="videoAtag" href='javascript:goDetail("${bestfv.video_num }")'>
+						<span class="play_button"></span> 
+						<img class="preview_img" src="${bestfv.video_thumbnail }" alt="preview_img"> 
+						<span class="title" >${bestfv.video_title }</span>
+					</a>
+				 </div> 
           </div>
         </div>
         	
-          <div class="col-lg-4 col-md-6 mb-4 mb-lg-0" data-aos="fade-up" data-aos-delay="100" >
-            <div class="video-team-member-1 text-center rounded">
-           
-            <video class="img-fluid" id="video3" onmouseover="this.play()" onmouseout="this.pause()" autobuffer="true" width="400px" height="300px"muted>
-          		<source src="img/foodvideo_test/foodvideo3.mp4" type="video/mp4" >
-		   		<source src="img/foodvideo_test/foodvideo3.ogg" type="video/ogg" >
-          	</video>
-          
-          </div>
-          </div>
-          <div class="col-lg-4 col-md-6 mb-4 mb-lg-0" data-aos="fade-up"data-aos-delay="200">
-            <div class="video-team-member-1 text-center rounded">
-            
-            <video class="img-fluid" id="video4" onmouseover="this.play()" onmouseout="this.pause()" autobuffer="true" width="400px" height="300px"muted>
-          		<source src="img/foodvideo_test/foodvideo4.mp4" type="video/mp4" >
-		   		<source src="img/foodvideo_test/foodvideo4.ogg" type="video/ogg" >
-          	</video>
-          	
-          </div>
-          </div>
-          <!-- <div class="col-lg-4 col-md-6 mb-4 mb-lg-0" data-aos="fade-up" >
-            <div class="video-team-member-1 text-center rounded">
-           
-            <video class="img-fluid" id="video5" onmouseover="this.play()" onmouseout="this.pause()" autobuffer="true" width="400px" height="300px"muted>
-          		<source src="img/foodvideo_test/foodvideo5.mp4" type="video/mp4" >
-		   		<source src="img/foodvideo_test/foodvideo5.ogg" type="video/ogg" >
-          	</video>
-          </div>
-          </div> -->
-          <div class="col-lg-4 col-md-6 mb-4 mb-lg-0" data-aos="fade-up" data-aos-delay="300">
-            <div class="video-team-member-1 text-center rounded">
-     		<!-- 마우스오버 시 재생 마우스아웃 시 스탑  -->
-          	<video class="img-fluid" onmouseover="this.play()" onmouseout="this.pause()" autobuffer="true" width="400px" height="300px"muted>
-          		<source src="img/foodvideo_test/foodvideo1.mp4" type="video/mp4" >
-		   		<source src="img/foodvideo_test/foodvideo1.ogg" type="video/ogg" >
-          	</video>
-           
-          </div>
-        </div>
-        
-          <div class="col-lg-4 col-md-6 mb-4 mb-lg-0" data-aos="fade-up" data-aos-delay="400">
-            <div class="video-team-member-1 text-center rounded">
-           
-            <video class="img-fluid" id="video3" onmouseover="this.play()" onmouseout="this.pause()" autobuffer="true" width="400px" height="300px"muted>
-          		<source src="img/foodvideo_test/foodvideo3.mp4" type="video/mp4" >
-		   		<source src="img/foodvideo_test/foodvideo3.ogg" type="video/ogg" >
-          	</video>
-          
-          </div>
-          </div>
-          <div class="col-lg-4 col-md-6 mb-4 mb-lg-0" data-aos="fade-up" data-aos-delay="500">
-            <div class="video-team-member-1 text-center rounded">
-            
-            <video class="img-fluid" id="video4" onmouseover="this.play()" onmouseout="this.pause()" autobuffer="true" width="400px" height="300px"muted>
-          		<source src="img/foodvideo_test/foodvideo4.mp4" type="video/mp4" >
-		   		<source src="img/foodvideo_test/foodvideo4.ogg" type="video/ogg" >
-          	</video>
-          	
-          </div>
-          </div>
+			</c:forEach>  --%>
+
           </div>
         </div>
       </div>
@@ -652,28 +685,30 @@ label#menu_label, #menu{
           <div class="col-12 text-center">
             <div class="block-heading-1">
               <h2>레 시 피 그 램</h2>
-              <a href = "recipegram_index">
+                <a href = "recipegram_index">
             		<h3 class="text-right font-size-17 h4 mb-2"> + 더보기</h3></a>
             </div>
           </div>
         </div>
         <!-- new 레시피그램 3개 출력  -->
-        <div class="row">
-          <div class="col-lg-4 col-md-6 mb-4 mb-lg-0" data-aos="fade-up">
+        <div class="row rg_list3">
+         <%--  <div class="col-lg-4 col-md-6 mb-4 mb-lg-0" data-aos="fade-up">
             <div class="block-team-member-1 text-center rounded">
     			<!-- 메인사진 출력  -->
-                <img src="img/main/mainimg1.jpg" alt="Image" class="img-fluid">
+    			<c:forEach var="List_rg" items="Main_rgList" >
+                <!-- <img src="img/main/mainimg1.jpg" alt="Image" class="img-fluid"> -->
+                <img src="./upload/${List_rg.img_name }">
            
-              <h3 class="font-size-20 text-white">test</h3>
+              <!-- <h3 class="font-size-20 text-white">test</h3> -->
               <!-- 닉네임 출력  -->
-              <span class="d-block font-gray-5 letter-spacing-1 text-uppercase font-size-20 mb-3">자취생</span>
+              <span class="d-block font-gray-5 letter-spacing-1 text-uppercase font-size-20 mb-3">${List_rg.user_nickname }</span>
               <!-- 내용 몇글자 출력 ? -->
-              <p class="px-3 mb-3">오랜만에 만든 요리~ 우아아아ㅏ아아아아아ㅏ아아아아아ㅏ아아아아!!!!!!! 다들 해보세요!!!!! ....</p>
-              
+              <p class="px-3 mb-3">${list_rg.recipegram_content}<!-- 오랜만에 만든 요리~ 우아아아ㅏ아아아아아ㅏ아아아아아ㅏ아아아아!!!!!!! 다들 해보세요!!!!! .... --></p>
+              </c:forEach>
             </div>
-          </div>
+          </div>  --%>
 
-          <div class="col-lg-4 col-md-6 mb-4 mb-lg-0" data-aos="fade-up" data-aos-delay="100">
+<!--           <div class="col-lg-4 col-md-6 mb-4 mb-lg-0" data-aos="fade-up" data-aos-delay="100">
             <div class="block-team-member-1 text-center rounded">
             
                 <img src="img/main/mainimg1.jpg" alt="Image" class="img-fluid">
@@ -694,7 +729,7 @@ label#menu_label, #menu{
               <p class="px-3 mb-3">오랜만에 만든 요리~ 우아아아ㅏ아아아아아ㅏ아아아아아ㅏ아아아아!!!!!!! 다들 해보세요!!!!! ....</p>
               
             </div>
-          </div>
+          </div> -->
         </div>
       </div>
     </div>
@@ -707,7 +742,7 @@ label#menu_label, #menu{
             <div class="block-heading-1">
             
               <h2>할 인 정 보</h2>
-              	<a href = "salething/salething_homeplus.jsp">
+              	<a href = "/salething_homeplus">
             		<h3 class="text-right font-size-17 h4 mb-2"> + 더보기</h3></a>
             
             </div>
@@ -736,11 +771,11 @@ label#menu_label, #menu{
           <div class="col-lg-4 col-md-6 mb-4 mb-lg-0" data-aos="fade-up" >
             <div class="block-team-member-1 text-center rounded">
             
-                <img src="img/main/mainimg2.jpeg" alt="Image" class="img-fluid">
-                
-              <h3 class="font-size-25 text-center mb-4 mt-4">감  자</h3>
-              <span class="d-block font-gray-5 letter-spacing-1 text-uppercase font-size-14 mb-2">판매가 : 10,000원</span>
-              <p class="px-3 font-size-17 mb-3">할인가격 : 9,200원</p>
+                <img src=<%= hp_img.get(0) %> alt="Image" class="img-fluid" style="height:227px;">
+             
+              <h3 class="font-size-20 text-center mb-4 mt-4"><%= hp_title.get(0)%></h3>
+              <span class="d-block font-gray-5 letter-spacing-1 text-uppercase font-size-14 mb-2">판매가 : <%=hp_cost.get(0) %></span>
+              <p class="px-3 font-size-17 mb-3">할인가격 : <%=hp_buy.get(0) %>원</p>
               
             </div>
           </div>
@@ -748,11 +783,11 @@ label#menu_label, #menu{
           <div class="col-lg-4 col-md-6 mb-4 mb-lg-0" data-aos="fade-up" data-aos-delay="100">
             <div class="block-team-member-1 text-center rounded">
             
-                <img src="img/main/mainimg3.jpg" alt="Image" class="img-fluid">
+                <img src=<%=lt_img.get(0) %> alt="Image" class="img-fluid" style="height:227px;">
  
-              <h3 class="font-size-25 text-center mb-4 mt-4">오   이</h3>
-              <span class="d-block font-gray-5 letter-spacing-1 text-uppercase font-size-14 mb-2">판매가 : 10,000원</span>
-              <p class="px-3 font-size-17 mb-3">할인가격 : 9,200원</p>
+              <h3 class="font-size-20 text-center mb-4 mt-4"><%=lt_title.get(0) %></h3>
+              <span class="d-block font-gray-5 letter-spacing-1 text-uppercase font-size-14 mb-2"></span>
+              <p class="px-3 font-size-17 mb-3">할인가격 : <%=lt_buy.get(0) %>원</p>
               
             </div>
           </div>
@@ -760,11 +795,11 @@ label#menu_label, #menu{
           <div class="col-lg-4 col-md-6 mb-4 mb-lg-0" data-aos="fade-up" data-aos-delay="200">
             <div class="block-team-member-1 text-center rounded">
             
-                <img src="img/main/mainimg4.jpg" alt="Image" class="img-fluid">
+                <img src=<%=em_img.get(0) %> alt="Image" class="img-fluid" style="height:227px;">
                 
-              <h3 class="font-size-25 text-center mb-4 mt-4">당   근</h3>
-              <span class="d-block font-gray-5 letter-spacing-1 text-uppercase font-size-14 mb-2">판매가 : 10,000원</span>
-              <p class="px-3 font-size-17 mb-3">할인가격 : 9,200원</p>
+              <h3 class="font-size-20 text-center mb-4 mt-4"><%= em_title.get(0)%></h3>
+              <span class="d-block font-gray-5 letter-spacing-1 text-uppercase font-size-14 mb-2">판매가 : <%=em_cost.get(0) %>원</span>
+              <p class="px-3 font-size-17 mb-3">할인가격 :<%=em_buy.get(0) %>원</p>
               
             </div>
           </div>
@@ -773,15 +808,87 @@ label#menu_label, #menu{
       </div>
     </div>
     
+    <!-- kakao chk -->
+    <input type="hidden" id="chkKakao" value="<%=session.getAttribute("chkKakao") %>">
     
 	<jsp:include page = "headNfoot/footer.jsp"/> 
 	
+<script type="text/javascript">
+
+	var csrfHeaderName ="${_csrf.headerName}"; 
+	var csrfTokenValue="${_csrf.token}";
+	
+	$.ajax({
+		url:'/main_rgList',
+		type:'GET',
+		dataType:'json',
+		contentType:'application/x-www-form-urlencoded;charset=utf-8',
+		success:function(data){
+			$.each(data, function(index, item){
+				console.log(item);
+				$.each(item.imgList, function(val1, val2){
+					console.log(val2.img_name);	
+					$.each(item.hashList, function(val3, val4){
+						console.log(val4.hash_name);
+					$('.rg_list3').append("<div class='col-lg-4 col-md-6 mb-4 mb-lg-0' data-aos='fade-up'>"
+							+"<div class='block-team-member-1 text-center rounded'>"
+							+"<img src='./upload/" + val2.img_name + "' alt='Image' class='img-fluid' style='width:100%;height:235px;'>"
+							+"<span class='d-block font-gray-5 letter-spacing-1 text-uppercase font-size-20 mb-3'>"
+							+item.user_nickname + "</span>"
+							+"<p class='px-3 mb-3'>" + val4.hash_name + "</p>"
+							+"</div>"
+							+"</div>"
+					)
+					});
+				});
+				
+			});
+		}
+	})
+</script>
+	
+<script type="text/javascript">
+
+	var csrfHeaderName ="${_csrf.headerName}"; 
+	var csrfTokenValue="${_csrf.token}";
+	
+	$.ajax({
+		url:'/main_fvList',
+		type:'GET',
+		dataType:'json',
+		contentType:'application/x-www-form-urlencoded;charset=utf-8',
+		success:function(data){
+			$.each(data, function(index, item){
+				$('.fv_best').append("<div class='col-lg-4 col-md-6 mb-4 mb-lg-0' data-aos='fade-up' >"
+						+"<div class='video-team-member-1 text-center rounded'>"
+						+"<div class='row  col-auto'> "
+						+"<a class='videoAtag' href='javascript:goDetail(" + item.video_num + ")'>"
+						+"<span class='play_button'></span> "
+						+"<img class='preview_img' src=" + item.video_thumbnail + " alt='preview_img'>"
+						+"<span class='title' >" + item.video_title + "</span>"
+						+"</a>"
+						+"</div>"
+						+"</div>"
+						+"</div>")
+			});
+		}
+	})
+</script>
+
 <script>
+
+//메인에서 요리영상 썸네일 클릭 시 detail로 이동
+function goDetail(video_num){
+	location.href="foodvideo_detail?video_num="+video_num;
+}
+
 var modal = document.getElementById('loginModal');
 var modal_email = document.getElementById('email_signupModal');
 var modal_sign_up = document.getElementById('sign_up_Modal');
 var modal_findPW = document.getElementById('findPWModal');
 var modal_newPW = document.getElementById('newPWModal');
+var modal_kakao_sign_up = document.getElementById('kakao_sign_up_Modal');
+
 
 
 var span1 = document.getElementsByClassName("close")[0];
@@ -789,6 +896,16 @@ var span2 = document.getElementsByClassName("close")[1];
 var span3 = document.getElementsByClassName("close")[2];
 var span4 = document.getElementsByClassName("close")[3];
 var span5 = document.getElementsByClassName("close")[4];
+var span6 = document.getElementsByClassName("close")[5];
+
+//카카오톡 로그인   ... 
+var chkKakao = document.getElementById('chkKakao').value;
+console.log("chk kakao : " + chkKakao);
+if(chkKakao == "-1"){
+	console.log("if chk kakao : " + chkKakao);
+
+	modal_kakao_sign_up.style.display = "block";
+}
 
 
 
@@ -821,30 +938,39 @@ $('#findPW_btn').click(function() {
 
 }); */
 
- span1.onclick = function() {
-   modal.style.display = "none";
-   }
- span2.onclick = function() {
-	 modal_email.style.display = "none";
-}
- span3.onclick = function() {
-	 modal_sign_up.style.display = "none";
-}
- span4.onclick = function() {
-	 modal_findPW.style.display = "none";
-}
- span5.onclick = function() {
-	 modal_newPW.style.display = "none";
-}
-window.onclick = function(event) {
-   if (event.target == modal) {
-      modal.style.display = "none";
-   } else if (event.target == modal_email) {
-	   modal_email.style.display = "none";
-   } else if (event.target == modal_sign_up) {
-	   modal_sign_up.style.display = "none";
-   }
-}
+span1.onclick = function() {
+	   modal.style.display = "none";
+	   }
+	 span2.onclick = function() {
+		 modal_email.style.display = "none";
+	}
+	 span3.onclick = function() {
+		 modal_sign_up.style.display = "none";
+	}
+	 span4.onclick = function() {
+		 modal_kakao_sign_up.style.display = "none";
+	}
+	 span5.onclick = function() {
+		 modal_findPW.style.display = "none";
+	}
+	 span6.onclick = function() {
+		 modal_newPW.style.display = "none";
+	} 
+	window.onclick = function(event) {
+	   if (event.target == modal) {
+	      modal.style.display = "none";
+	   } else if (event.target == modal_email) {
+		   modal_email.style.display = "none";
+	   } else if (event.target == modal_sign_up) {
+		   modal_sign_up.style.display = "none";
+	   } else if (event.target == modal_sign_up) {
+		   modal_findPW.style.display = "none";
+	   } else if (event.target == modal_sign_up) {
+		   modal_newPW.style.display = "none";
+	   } else if (event.target == modal_sign_up) {
+		   modal_kakao_sign_up.style.display = "none";
+	   }
+	}
 
 $("#login_button").on("click", function(e){
 

@@ -1,5 +1,7 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
     pageEncoding="UTF-8"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>   
+<%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"  %>
 <!DOCTYPE html>
 <html>
 <head>
@@ -132,7 +134,7 @@ input.cooking_txt:focus, .cooking_btn:focus, #cooking_title:focus, #cooking_sub:
 		          <div class="col-md-3 col-lg-2 mb-1 text-center">
 		            <div class="block-heading-1">
 		            
-		              <a href="myPage_index.jsp" id="mypage"><h4 class="my">회원정보</h4></a>
+		              <a href="/myPage_index" id="mypage"><h4 class="my">회원정보</h4></a>
 		              
 		            </div>
 		          </div>
@@ -140,21 +142,21 @@ input.cooking_txt:focus, .cooking_btn:focus, #cooking_title:focus, #cooking_sub:
 		          <div class="col-md-3 col-lg-2 mb-1 text-center">
 		            <div class="block-heading-1">
 		            	<a href="#table2">	
-		              <a href="myPage_recipegram.jsp" id="myrecipegram"><h4 class="my">레시피그램</h4></a>
+		              <a href="/myPage_recipegram" id="myrecipegram"><h4 class="my">레시피그램</h4></a>
 		              </a>
 		            </div>
 		          </div>
 		          <div class="col-md-3 col-lg-2 mb-1 text-center">
 		            <div class="block-heading-1">
 		            
-		              <a href="myPage_recipe.jsp" id="myrecipe"><h4 class="clickmy">레시피</h4></a>
+		              <a href="/myPage_recipe" id="myrecipe"><h4 class="clickmy">레시피</h4></a>
 		              
 		            </div>
 		          </div>
 		          <div class="col-md-3 col-lg-2 mb-1 text-center">
 		            <div class="block-heading-1">
 		            
-		              <a href="myPage_mark.jsp" id="mymark"><h4 class="my">찜</h4></a>
+		              <a href="/myPage_mark" id="mymark"><h4 class="my">찜</h4></a>
 		              
 		            </div>
 		          </div>
@@ -168,141 +170,38 @@ input.cooking_txt:focus, .cooking_btn:focus, #cooking_title:focus, #cooking_sub:
   
    
 	 <div class="wholeBody">
-	
 		
-        <div class="container eachBody mb-5">
-        <div class="row mb-5">
-        </div>
-        
-     	<div class="row">
-         <div class="col-lg-6 col-md-6 mb-4 mb-lg-0" >
-         		<div class="text-center rounded">
-    			
-         		<form name="form" id="form" action="" method="post" enctype="multipart/form-data" autocomplete="off">
-    				<div class="mainImg mb-2 mt-4" style="height:25.0rem;border:1px dashed #65737e; text-align:center">
-           					<img src = "../img/admin/admin_plus.png" id="img"style="width:20%; border:none; padding-top:27%;" > <!-- 이미지버튼으로 파일첨부  -->
-          				</div>
-           		
-           					<input type="file" id="mainimg" style="display:none; " onchange="getThumbnailPrivew(this,$('#mainimg_1'))">
-           		
-           			
-           		</form>
-           		</div>
-           		
-           	</div>
-           	<div class="col-lg-6 col-md-6 mb-4 mb-lg-0">
-           	<div class="col-12 text-right">
-		        		<img src="../img/user/recipegram_update.png" class="mr-2 recipe_update" style="width:5%; margin-top:-4%;"/>
-		        		<i class="fas fa-times fa-2x recipe_delete"></i>
-		        	</div>
-           	<div class="rounded text-center">
-    			
-           		<span class="cooking_title recipe_title">Title</span>  <!-- 타이틀을 클릭하면 상세보기로 이동 -->
-           		<textarea class="cooking_main" readonly style="width:100%;"> 주재료 : 오징어, 참마, 등푸른생선</textarea>
-           		<textarea class="cooking_sub"  readonly style="width:100%;"> 부재료 : 들깨, 고수, 푸팟퐁커리</textarea>
-           		
-          </div>
-        </div>
-		</div>
-		   <!-- <span class="icon"><img src="img/main/search.png" /></span>
-                <input type="text" id="recipe_search" /> -->
-	
-         
-        <!-- <div class="row">
-        	<div class="col-12 text-right">
-        		<i class="fas fa-plus"></i><span>상세보기</span> 
-			</div>
-		</div> -->
-		</div>
-       <div class="container eachBody mb-5">
-        <div class="row mb-5">
-        </div>
-        
-     	<div class="row">
-         <div class="col-lg-6 col-md-6 mb-4 mb-lg-0" >
-         		<div class="text-center rounded">
-    			
-         		<form name="form" id="form" action="" method="post" enctype="multipart/form-data" autocomplete="off">
-    				<div class="mainImg mb-2 mt-4" style="height:25.0rem;border:1px dashed #65737e; text-align:center">
-           					<img src = "../img/admin/admin_plus.png" id="img"style="width:20%; border:none; padding-top:27%;" > <!-- 이미지버튼으로 파일첨부  -->
-          				</div>
-           		
-           					<input type="file" id="mainimg" style="display:none; " onchange="getThumbnailPrivew(this,$('#mainimg_1'))">
-           		
-           			
-           		</form>
-           		</div>
-           		
-           	</div>
-           	<div class="col-lg-6 col-md-6 mb-4 mb-lg-0">
-           	<div class="col-12 text-right">
-		        		<img src="../img/user/recipegram_update.png" class="mr-2 recipe_update" style="width:5%; margin-top:-4%;"/>
-		        		<i class="fas fa-times fa-2x recipe_delete"></i>
-		        	</div>
-           	<div class="rounded text-center">
-    			
-           		<span class="cooking_title recipe_title">Title</span>  <!-- 타이틀을 클릭하면 상세보기로 이동 -->
-           		<textarea class="cooking_main" readonly style="width:100%;"> 주재료 : 오징어, 참마, 등푸른생선</textarea>
-           		<textarea class="cooking_sub"  readonly style="width:100%;"> 부재료 : 들깨, 고수, 푸팟퐁커리</textarea>
-           		
-          </div>
-        </div>
-		</div>
-		   <!-- <span class="icon"><img src="img/main/search.png" /></span>
-                <input type="text" id="recipe_search" /> -->
-	
-         
-        <!-- <div class="row">
-        	<div class="col-12 text-right">
-        		<i class="fas fa-plus"></i><span>상세보기</span> 
-			</div>
-		</div> -->
-		</div>
+		<c:forEach var="recipe" items="${recipeList}">
+		<div class="container eachBody mb-5">
+	        <div class="row mb-5"></div> 
+			<div class="row">	
+				<div class="col-lg-6 col-md-6 mb-4 mb-lg-0" >
+					<div class="text-center rounded">
+		         		<form name="form" id="form" action="" method="post" enctype="multipart/form-data" autocomplete="off">
+		    				<div class="mainImg mb-2 mt-4" style="height:25.0rem;border:1px dashed #65737e; text-align:center">
+		           					<img src = '${recipe.recipe_img}' id="img" style="width:100%; height:100%; border:none;" > 
+		          			</div>
+		           		</form>
+           			</div>
+				</div>	
+				
+				<div class="col-lg-6 col-md-6 mb-4 mb-lg-0">
+		           	<div class="col-12 text-right">
+						<img src="../img/user/recipegram_update.png" class="mr-2 recipe_update" onclick="location.href = '/recipe_modify/${recipe.excel}/${recipe.recipe_num}?from=myPage_recipe'" style="width:5%; margin-top:-4%; cursor:pointer;"/>
+						<i class="fas fa-times fa-2x recipe_delete" style="cursor:pointer;" onclick="location.href = '/recipe_delete/${recipe.excel}/${recipe.recipe_num}'"></i>
+					</div>
+		           	<div class="rounded text-center">
+		           		<span class="cooking_title recipe_title">${recipe.recipe_title}</span>  
+		           		<textarea class="cooking_main" readonly style="width:100%;">주재료: ${recipe.recipe_food_main}</textarea>
+		           		<textarea class="cooking_sub"  readonly style="width:100%;">부재료: ${recipe.recipe_food_suv}</textarea>
+		          </div>
+		        </div>	
+		        
+			</div> 
+		</div> 
+		</c:forEach>
 		
-        <div class="container eachBody mb-5">
-        <div class="row mb-5">
-        </div>
-        
-     	<div class="row">
-         <div class="col-lg-6 col-md-6 mb-4 mb-lg-0" >
-         		<div class="text-center rounded">
-    			
-         		<form name="form" id="form" action="" method="post" enctype="multipart/form-data" autocomplete="off">
-    				<div class="mainImg mb-2 mt-4" style="height:25.0rem;border:1px dashed #65737e; text-align:center">
-           					<img src = "../img/admin/admin_plus.png" id="img"style="width:20%; border:none; padding-top:27%;" > <!-- 이미지버튼으로 파일첨부  -->
-          				</div>
-           		
-           					<input type="file" id="mainimg" style="display:none; " onchange="getThumbnailPrivew(this,$('#mainimg_1'))">
-           		
-           			
-           		</form>
-           		</div>
-           		
-           	</div>
-           	<div class="col-lg-6 col-md-6 mb-4 mb-lg-0">
-           	<div class="col-12 text-right">
-		        		<img src="../img/user/recipegram_update.png" class="mr-2 recipe_update" style="width:5%; margin-top:-4%;"/>
-		        		<i class="fas fa-times fa-2x recipe_delete"></i>
-		        	</div>
-           	<div class="rounded text-center">
-    			
-           		<span class="cooking_title recipe_title">Title</span>  <!-- 타이틀을 클릭하면 상세보기로 이동 -->
-           		<textarea class="cooking_main" readonly style="width:100%;"> 주재료 : 오징어, 참마, 등푸른생선</textarea>
-           		<textarea class="cooking_sub"  readonly style="width:100%;"> 부재료 : 들깨, 고수, 푸팟퐁커리</textarea>
-           		
-          </div>
-        </div>
-		</div>
-		   <!-- <span class="icon"><img src="img/main/search.png" /></span>
-                <input type="text" id="recipe_search" /> -->
-	
-         
-        <!-- <div class="row">
-        	<div class="col-12 text-right">
-        		<i class="fas fa-plus"></i><span>상세보기</span> 
-			</div>
-		</div> -->
-		</div>
+       
       </div>
 	
 </div>

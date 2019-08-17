@@ -250,7 +250,7 @@ input:focus::-ms-input-placeholder {
 .replycont {
 	border: none;
 	border-radius: 35px;
-	width: 80%;
+	width: 75%;
 	outline: none;
 	padding-left: 13px;
 	margin-right: 20px;
@@ -338,8 +338,6 @@ textarea {
 }
 
 
-
-
 .rereplybtn {
 	border: none;
 	border-radius: 30px;
@@ -352,15 +350,40 @@ textarea {
 
 .con{
    width:100%;
-   height: 300px;
+   height: 210px;
    overflow-y:scroll;
    -ms-overflow-style:none;
+   padding-top:2%;
+   margin-top:2%;
 }
-
 .con::-webkit-scrollbar{
    display:none;
 }
+
+.rg_con{
+	margin-left:5%;
+	
+}
+ @media (max-width: 500px) {
+	.rg_con{
+	margin-left:.5%;
+	padding-right:0;
+	
+}
+} 
+
+.new_like_btn{
+	margin-top:2%;
+} @media (max-width: 500px) {
+	.new_like_btn{
+	margin-top:5%;
+	
+	
+}
+} 
+
 </style>
+
 
 </head>
 
@@ -380,11 +403,7 @@ textarea {
 <script src="../resources/js/main.js"></script>
 
 <jsp:include page = "../headNfoot/header.jsp"/>   
-<sec:authentication var="user_num" property="principal.member.user_num"/>
-						<sec:authentication var="user_nickname" property="principal.member.user_nickname"/> 
-				    		<input type="hidden" id="user_num" name="user_num" value="${user_num }">
-				    		<input type="hidden" id="login_nickname" name="login_nickname" value="${user_nickname }">
-											
+			
 		<div class="subsite-section">
 		      <div class="container">
 		        <div class="row">
@@ -423,27 +442,32 @@ textarea {
 		     
 		     
 	<div class="subsite-section bg-light" style="padding-bottom: 2%;">
+<!-- 로그인 시   -->
+		<sec:authorize access="isAuthenticated()">
+		<sec:authentication var="user_num" property="principal.member.user_num"/>
+						<sec:authentication var="user_nickname" property="principal.member.user_nickname"/> 
+				    		<input type="hidden" id="user_num" name="user_num" value="${user_num }">
+				    		<input type="hidden" id="login_nickname" name="login_nickname" value="${user_nickname }">
+											
+		
+		</sec:authorize>
+		<sec:authorize access="isAnonymous()">
+		
+				<input type="hidden" id="user_num" name="user_num" value="-1">	
+				
+						
+		</sec:authorize>
+		
 		
 	<div class="container mainview " id="mainview" >
 		<c:forEach items="${list}" var="rglist" > 
-		<c:set var="recipegram_num" value="${rglist.recipegram_num }"/>
-			<div class="col-md-12 ">
-			<form id="form${rglist.recipegram_num }" name="form${rglist.recipegram_num }" method = "post" >
-				<input type="hidden" name = "${_csrf.parameterName }" value = "${_csrf.token }"/>
-				<input type="hidden" id="user_nickname" name="user_nickname" value="${rglist.user_nickname }">
-				<span id="nickname" class=" font-size-17 " style="color: #65737e;" onclick="user_list(${rglist.recipegram_num });"><c:out value="${rglist.user_nickname }"/></span>
-			</form>		
-			<c:if test = "${rglist.user_num eq user_num }">	
+		<!-- 나만보기가 아닐 경우...  -->
+		<c:if test="${rglist.recipegram_secret eq 0}">
+			<c:set var="recipegram_num" value="${rglist.recipegram_num }"/>
 			
-		        		<img src="../img/user/recipegram_update.png" class="mr-2 recipegram_update " style="width:2.5%; margin-top:-1.5%; margin-left:90%;"/>
-		        		<i class="fas fa-times fa-2x recipegram_delete "></i>
-		        	
-		        	
-		      </c:if> 	
-			</div>
-				<div class="row col-md-12 col-sm-12 col-xs-12" style="background-color : white; border:1px solid rgba(0,0,0,.0975); margin-bottom:5rem;padding-left:0;">
+				<div class="row col-md-10 col-sm-12 col-xs-12 rg_con" style="background-color : white; border:1px solid rgba(0,0,0,.0975); margin-bottom:4rem;padding-left:0; ">
 					<!-- carousel -->
-							<div id="demo${rglist.recipegram_num }" class="col-md-6 carousel" style="padding-left:0;"data-ride="carousel" data-interval="false" >
+							<div id="demo${rglist.recipegram_num }" class="col-md-7 carousel" style="padding-left:0;"data-ride="carousel" data-interval="false" >
 								<!-- Indicators -->
 								<ul class="carousel-indicators" id="indi${rglist.recipegram_num }">
 								 <c:forEach items="${rglist.imgList }" var="img"> 
@@ -480,19 +504,59 @@ textarea {
 								</a>
 
 							</div><!-- col-md-6 carousel -->
+							
+							
+							
 
-					<div class="col-md-6" style="padding-left: 1.5%; padding-top: 1%;">
+					<div class="col-md-5" style="padding-left: 1.5%; padding-top: 1%;">
+						<form id="form${rglist.recipegram_num }" name="form${rglist.recipegram_num }" method = "post" >
+							<div style="border-bottom:1px solid rgba(0,0,0,.0975); margin-top:3%; padding-bottom:3%;" >
+								<input type="hidden" name = "${_csrf.parameterName }" value = "${_csrf.token }"/>
+								<input type="hidden" id="user_nickname" name="user_nickname" value="${rglist.user_nickname }">
+								<span id="nckname" class=" font-size-17 " style="color: #65737e ;" onclick="user_list(${rglist.recipegram_num });"><c:out value="${rglist.user_nickname }"/></span>
 					
-							<div class="con">
+								
+						<!-- 관리자시...  -->                  
+				        <sec:authorize access="hasRole('ROLE_ADMIN')">
+				        <c:choose>
+				       		<c:when test = "${rglist.user_num eq user_num }">	
+								<img src="../img/user/recipegram_update.png" class="mr-2 recipegram_update " style="width:3.5%; margin-top:-1.5%; margin-left:75%;" onclick="modify(${rglist.recipegram_num })"/>
+						        
+						        <i class="fas fa-times fa-x recipegram_delete " onclick="rg_delete(${rglist.recipegram_num})"></i>
+						        	
+						        	
+						      </c:when> 
+						     <c:otherwise> 
+				        		<i class="fas fa-times fa-x recipegram_delete " onclick="rg_delete(${rglist.recipegram_num})" style="margin-top:-1.5%; margin-left:80%;"></i>
+				        	</c:otherwise>
+				        </c:choose>
+				        </sec:authorize>		
+				        <!-- 일반 user -->
+						<sec:authorize access="!hasRole('ROLE_ADMIN')">
+							<c:if test = "${rglist.user_num eq user_num }">	
+								<img src="../img/user/recipegram_update.png" class="mr-2 recipegram_update " style="width:2.5%; margin-top:-1.5%; margin-left:75%;" onclick="modify(${rglist.recipegram_num })"/>
+						        
+						        		<i class="fas fa-times fa-x recipegram_delete " onclick="rg_delete(${rglist.recipegram_num})"></i>
+						        	
+						        	
+						      </c:if> 
+						 </sec:authorize>
+						 
+						
+						</div>
+					</form>	
+					
+					
+							<div class="con" >
 								<div class=" col-sm-12 col-xs-12">
 									<!-- <input type="text" value="" readonly style="width: 100%;"> -->
 									<%-- <div class="info " style="" id="info_data${rglist.recipegram_num }"> --%>
 										<div class="info_data " id="btn_info${rglist.recipegram_num }" class="font-size-17" >
 											${rglist.recipegram_content  }
 										</div>
-										<span class="col-sm-12 rgdate font-size-13" style="float:right;color: #d2d2d2;padding-top:2%;">  
+										<span class="col-sm-12 rgdate font-size-13" style="float:right;color: #d2d2d2;padding-top:1%;">  
 										 	${fn:split(rglist.firstdate,'-')[0]}년 ${fn:split(rglist.firstdate,'-')[1]}월 ${fn:split(rglist.firstdate,'-')[2]}일 
-												<hr>
+												
 										</span> 
 										
 					
@@ -509,7 +573,7 @@ textarea {
      					
      			
 	    
-       					<div class='row col-md-12 mt-4'><br>
+       					<div class='row col-md-12 mt-4 pt-3'><br>
        						<div class='info_data2 col-sm-12 ' id="reply_list${rglist.recipegram_num }">
        						
        						</div>
@@ -527,8 +591,6 @@ textarea {
 								onclick="ChangeImage(${recipegram_num})" name="hearts" id="hearts${rglist.recipegram_num }">&nbsp;
 							
 						
-							 <img src="img/recipegram/add.png" style="width: 1.8rem;">
-							 
 						</div>
 			<span class="col-md-10 rgdate font-size-13" style="float:left;color: #65737e;padding-top:1%;">  
 							 	<input type="text" name="cnt_like${rglist.recipegram_num }" value="${rglist.recipegram_like_cnt }" style="background:none; border:none;color: #65737e;width:5%;">명이 좋아합니다.
@@ -556,13 +618,12 @@ textarea {
 		</div>
 	<!-- </div> -->
 
+</c:if>
+	 </c:forEach>
+	 </div>
+	</div>
 
-</c:forEach>
-</div>
-</div>
-
-<jsp:include page = "../headNfoot/footer.jsp"/>     
-
+	<jsp:include page="../headNfoot/footer.jsp" />
 
 	<script>
 	function modify(recipegram_num){
@@ -1231,7 +1292,7 @@ function deleteRereply(num){
 
 
 
-<!-- 
+
 <script>
 	// 무한스크롤
 	var startNum = 1;
@@ -1243,10 +1304,10 @@ function deleteRereply(num){
 		var maxHeight = $(document).height()-$(".site-footer").outerHeight();
 		var currentScroll = $(window).scrollTop() + $(window).height();
 		
-		var cri = document.location.href.split("="); 
+var user_nickname=document.getElementById('login_nickname').value;
 		
-		console.log(cri);
-
+		console.log("user : " + user_nickname );
+		
 		/* console.log("cu : " + currentScroll);
 		console.log("max : " + maxHeight);
 		console.log("Start : " +startNum); */
@@ -1254,11 +1315,14 @@ function deleteRereply(num){
 		if(maxHeight <= currentScroll + 50){
 			$.ajax({
 				type:"POST",
-				url:"/getMoreNewRecipegram",
+				url:"/getMoreUserNewRecipegram",
 				async :false,
-				data:{"startNum":startNum
+				data:{"startNum":startNum,
+					"user_nickname":user_nickname
 				},
 			
+
+
 				beforeSend: function(xhr) {
 			          xhr.setRequestHeader(csrfHeaderName, csrfTokenValue);
 			    },
@@ -1283,25 +1347,9 @@ function deleteRereply(num){
 							
 						if(item.recipegram_secret == 0){	
 						
-						$("#mainview").append("<form id='form"+item.recipegram_num +"' name='form"+item.recipegram_num +"' method = 'post'>"
-							+"<div class='col-md-12 ' id='nick_"+item.recipegram_num+"'>"				
-							+"<input type='hidden' name = '${_csrf.parameterName }' value = '${_csrf.token }'/>"
-							+"<input type='hidden' id='user_nickname' name='user_nickname' value='"+item.user_nickname +"'>"
-							+"<span id='nckname' class='font-size-17' style='color: #65737e;'>"
-							+item.user_nickname 
-					 		+"</span>");
-						
-						
-						if(item.user_num == user_num){
-							$("#nick_"+item.recipegram_num).append("<img src='../img/user/recipegram_update.png' class='mr-2 recipegram_update ' style='width:2.5%; margin-top:-1.5%; margin-left:88%;' onclick='modify("+item.recipegram_num +")'/>"
-				        		+"<i class='fas fa-times fa-2x recipegram_delete' onclick='rg_delete("+item.recipegram_num+")'></i>");
-						}
-						$("#mainview").append("</div></form>	");
-					
-					 
 					 		
-						$("#mainview").append("<div class='row col-md-12 col-sm-12 col-xs-12' id='row"+item.recipegram_num+"' style='background-color : white; border:1px solid rgba(0,0,0,.0975); margin-bottom:5rem;padding-left:0;'onclick='modify("+item.recipegram_num +")'>"
-							+"<div id='demo"+item.recipegram_num +"' class='col-md-6 carousel' style='padding-left:0;'data-ride='carousel' data-interval='false' >"
+						$("#mainview").append("<div class='row col-md-10 col-sm-12 col-xs-12 rg_con' id='row"+item.recipegram_num+"' style='background-color : white; border:1px solid rgba(0,0,0,.0975); margin-bottom:5rem;padding-left:0;'>"
+							+"<div id='demo"+item.recipegram_num +"' class='col-md-7 carousel' style='padding-left:0;'data-ride='carousel' data-interval='false' >"
 							+"<ul class='carousel-indicators' id='indi"+item.recipegram_num +"'>");
 						
 						for(var i=0; i<item.imgList.length; i++){
@@ -1361,18 +1409,35 @@ function deleteRereply(num){
 							+"</a>"
 							+"</div>");
 							
-					$("#row"+item.recipegram_num).append("<div class='col-md-6' style='padding-left: 1.5%; padding-top: 1%;'>"
-							+"<div class='con'>"
+					$("#row"+item.recipegram_num).append("<div class='col-md-5' style='padding-left: 1.5%; padding-top: 1%;' id='cont_"+item.recipegram_num+"'>"
+							+"<form id='form"+item.recipegram_num +"' name='form"+item.recipegram_num +"' method = 'post'>"
+							+"<div style='border-bottom:1px solid rgba(0,0,0,.0975); margin-top:3%; padding-bottom:3%;'id='nick_"+item.recipegram_num+"' >"
+										
+							+"<input type='hidden' name = '${_csrf.parameterName }' value = '${_csrf.token }'/>"
+							+"<input type='hidden' id='user_nickname' name='user_nickname' value='"+item.user_nickname +"'>"
+							+"<span id='nckname' class='font-size-17' style='color: #65737e;'  onclick='user_list("+item.recipegram_num+")'> "
+							+item.user_nickname 
+					 		+"</span>");
+					
+					if(item.user_num == user_num){
+						$("#nick_"+item.recipegram_num).append("<img src='../img/user/recipegram_update.png' class='mr-2 recipegram_update ' style='width:3.5%; margin-top:-1.5%; margin-left:75%;' onclick='modify("+item.recipegram_num +")'/>"
+			        		+"<i class='fas fa-times fa-x recipegram_delete' onclick='rg_delete("+item.recipegram_num+")'></i>");
+					}
+					
+					$("#form"+item.recipegram_num).append("</div></form>");
+					 		
+							
+					$("#cont_"+item.recipegram_num).append("<div class='con'>"
 							+"<div class='col-sm-12 col-xs-12'>"
 							+"<div class='info_data ' id='btn_info"+item.recipegram_num +"' class='font-size-17' >"
 							+item.recipegram_content
 							+"</div>"
-							+"<span class='col-sm-12 rgdate font-size-13' style='float:right;color: #d2d2d2;padding-top:2%;'> " 
+							+"<span class='col-sm-12 rgdate font-size-13' style='float:right;color: #d2d2d2;padding-top:1%;'> " 
 							+year+"년 " + month +"월 " +day +"일 "
-							+"<hr>"
+							
 							+"</span> "
 							+"</div>"
-			       			+"<div class='row col-md-12 mt-4'><br>"
+			       			+"<div class='row col-md-12 mt-4 pt-3'><br>"
 			       			+"<div class='info_data2 col-sm-12 ' id='reply_list"+item.recipegram_num +"'>"
 			       			+"</div>"
 			       			+"</div>"
@@ -1410,14 +1475,12 @@ function deleteRereply(num){
 			startNum += 1;
 			console.log(startNum);
 		}
-	});  -->
+	}); 
 	</script> 
 <script>
 $('.recipegram_update').tooltip({title:"수정",placement:"bottom"});
 $('.recipegram_delete').tooltip({title:"삭제",placement:"bottom"});
 </script>  
-		});
-	</script>
-      
+
 </body>
-</html>
+</html></html>
