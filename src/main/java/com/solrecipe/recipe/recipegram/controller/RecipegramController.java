@@ -62,17 +62,20 @@ public class RecipegramController {
 	
 	@Autowired
 	RecipegramService recipegramservice;
+	
 	@Autowired
 	UserService usservice;
 
-	
 	@Autowired
 	CommonService commonService;
+	
+	//레시피그램 작성
 	 @RequestMapping("/recipegram_write")
 	   public String recipegram_write() {
 	      return "recipegram/recipegram_write";
 	   }
-	//이미지 indigators
+	
+	//레시피그램 이미지리스트 
 		@RequestMapping(value="/img_list", method=RequestMethod.POST, produces="application/json;charset=UTF-8")
 		@ResponseBody
 		public List imgList(int recipegram_num) {
@@ -83,7 +86,7 @@ public class RecipegramController {
 			return imgList;
 		}
 		
-		//recipegramContent
+		//레시피그램 내용 
 		@RequestMapping(value="/rg_content", method=RequestMethod.POST, produces="application/json;charset=UTF-8")
 		@ResponseBody
 		public List contentList(int recipegram_num) {
@@ -94,7 +97,7 @@ public class RecipegramController {
 		}	
 		
 	
-	
+	//레시피그램 최신순(디폴트)페이지
 	@GetMapping("/recipegram_index")
 	public String rgList(@ModelAttribute("cri")RecipegramCriteria cri, Model model) {
 		log.info(cri);
@@ -105,6 +108,7 @@ public class RecipegramController {
 	}
 	
 	/* @GetMapping("/recipegram_index") */
+	//레시피그램 좋아요순 페이지
 	@GetMapping(value="/getRecipegramLike")
 	public String getLikeList(Model model, @ModelAttribute("cri")RecipegramCriteria cri) {
 		
@@ -115,6 +119,7 @@ public class RecipegramController {
 		return ("/recipegram/recipegram_lindex");
 	}
 	
+	//레시피그램 수정 페이지
 	@GetMapping(value="/getmodifyRecipegram" )
 	public String getmodifyRecipegram(Model model, Integer recipegram_num) {
 
@@ -128,7 +133,7 @@ public class RecipegramController {
 		
 	}
 	
-	
+	//레시피그램 등록 페이지
 	@RequestMapping(value="/insertRecipegram", method=RequestMethod.POST, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 	@ResponseBody
 	public String insertRecipegram(MultipartFile[] uploadFile, MultipartHttpServletRequest request, HttpServletResponse response,
@@ -209,6 +214,7 @@ public class RecipegramController {
 		return null;
 	}
 	
+	//레시피그램 수정 작업
 	@RequestMapping(value="/updateRecipegram", method=RequestMethod.POST)
 	@ResponseBody
 	public String updateRecipegram(MultipartFile[] uploadFile, MultipartHttpServletRequest request, HttpServletResponse response,
@@ -252,6 +258,7 @@ public class RecipegramController {
 		return null;
 	}
 	
+	//레시피그램 무한스크롤(최신순)
 	@PostMapping(value="/getMoreNewRecipegram", produces="application/json;charset=UTF-8")
 	@ResponseBody
 	public ArrayList<RecipegramVO> getMoreNewRecipegram(String recipe_search, String startNum) throws UnsupportedEncodingException{
@@ -266,6 +273,7 @@ public class RecipegramController {
 		return moreNewlist;
 	}
 	
+	//레시피그램 무한스크롤(좋아요순)
 	@PostMapping(value="/getMoreLikeNewRecipegram", produces="application/json;charset=UTF-8")
 	@ResponseBody
 	public ArrayList<RecipegramVO> getMoreLikeNewRecipegram(String recipe_search,String startNum) throws UnsupportedEncodingException{
@@ -292,6 +300,7 @@ public class RecipegramController {
 				return moreNewlist;
 	}
 	
+	//레시피그램 좋아요 출력
 	@RequestMapping(value="/getLike", produces="application/json; charset=utf8")
     @ResponseBody
     public ArrayList<Recipegram_likeVO>  getLike (Recipegram_likeVO likevo, String user_num) {
@@ -300,7 +309,8 @@ public class RecipegramController {
 		
 		return get;
 	}
-	//좋아요
+	
+	//레시피그램 좋아요 클릭
 	@RequestMapping(value="/insertLike", produces="application/json; charset=utf8")
     @ResponseBody
     public ArrayList<RecipegramVO> insertLike (String recipegram_num, String user_num,
@@ -340,7 +350,7 @@ public class RecipegramController {
 		return insert; 
 	}
 	
-	
+	//레시피그램 좋아요 해제
 		@RequestMapping(value="/deleteLike", produces="application/json; charset=utf8")
 	    @ResponseBody
 	    public ArrayList<RecipegramVO> deleteLike (String recipegram_num, String user_num,
@@ -378,7 +388,7 @@ public class RecipegramController {
 			return delete; 
 		}
 	
-	
+	//레시피그램 댓글 작성
 	@RequestMapping(value="/insertReply", produces="application/json; charset=utf8")
     @ResponseBody
     public int insertReply(ReplyVO replyvo, String user_num, String user_nickname, 
@@ -399,6 +409,7 @@ public class RecipegramController {
         return insert;
     }
     
+	//레시피그램 대댓글 작성
 	@RequestMapping(value="/insertRereply", produces="application/json; charset=utf8")
     @ResponseBody
     public int insertRereply(RereplyVO rereplyvo, String rere_user_num, String rere_user_nickname, 
@@ -420,7 +431,7 @@ public class RecipegramController {
         return 0;
     }
     
-   
+   //레시피그램 댓글 리스트
 	@RequestMapping(value="/replyList", produces="application/json; charset=utf8")
     @ResponseBody
     public ArrayList<ReplyVO> replyList(String recipegram_num, String user_nickname, ReplyVO replyvo, RereplyVO rereplyvo) throws Exception{
@@ -436,6 +447,7 @@ public class RecipegramController {
         
     }
 	
+	//레시피그램 대댓글 리스트
 	@RequestMapping(value="/rereplyList", produces="application/json; charset=utf8")
     @ResponseBody
     public ArrayList<RereplyVO> rereplyList(String recipegram_reply_num, String user_nickname, RereplyVO rereplyvo) throws Exception{
@@ -453,6 +465,7 @@ public class RecipegramController {
         
     }
 	
+	//레시피그램 댓글 삭제
 	@RequestMapping(value="/deleteReply", produces="application/json; charset=utf8")
     @ResponseBody
     public int delteReply(String recipegram_reply_num) throws Exception{
@@ -464,6 +477,7 @@ public class RecipegramController {
 		return 0;
 	}
 	
+	//레시피그램 대댓글 삭제
 	@RequestMapping(value="/deleteRereply", produces="application/json; charset=utf8")
     @ResponseBody
     public int deleteRereply(String recipegram_rereply_num) throws Exception{
@@ -475,6 +489,7 @@ public class RecipegramController {
 		return 0;
 	}
 	
+	//레시피그램 삭제
 	@RequestMapping(value="/deleteRecipegram", produces="application/json; charset=utf8")
     @ResponseBody
     public int deleteRecipegram(String recipegram_num) throws Exception{
@@ -486,7 +501,7 @@ public class RecipegramController {
 		return 0;
 	}
 	
-	
+	//레시피그램 회원 페이지
 	@RequestMapping(value="/recipegram_user_index")
 	public String rguserList(Model model,HttpServletRequest request) {
 		
@@ -510,6 +525,7 @@ public class RecipegramController {
 //		return "/recipegram/recipegram_user_index";
 	}
 	
+	//마이페이지 
 	@RequestMapping(value = "/myPage_recipegram")
 	public String rgList(Model model, HttpServletRequest request, Principal principal) {
 		
