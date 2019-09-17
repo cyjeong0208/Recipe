@@ -407,6 +407,33 @@
 		
 	</select>
 	
+	<select id="rguserListcnt" resultType="Integer">
+	<![CDATA[
+	     SELECT
+			count(*)
+        FROM (
+				 SELECT
+							recipegram_num
+						FROM (
+				 SELECT 
+							 recipegram_num, user_num, user_nickname, recipegram_content, recipegram_like_cnt, firstdate, updatedate, recipegram_secret, img_num, img_name
+						FROM (
+							SELECT
+								rg.recipegram_num, rg.user_num, det.user_nickname, recipegram_content, recipegram_like_cnt, rg.firstdate, rg.updatedate, recipegram_secret, img_num, img_name
+							FROM
+			            
+	                   
+						recipegram_tb rg LEFT OUTER JOIN user_tb mem on mem.user_num=rg.user_num
+										LEFT OUTER JOIN img_tb img on rg.recipegram_num=img.recipegram_num
+										LEFT OUTER JOIN user_detail_tb det on det.user_num=rg.user_num
+										LEFT OUTER JOIN hash_tb hash on rg.recipegram_num=hash.recipegram_num
+					WHERE user_nickname =#{user_nickname, jdbcType = VARCHAR}				
+					)
+	        	)group by recipegram_num order by recipegram_num desc
+		    )
+	 ]]>
+	</select>
+	
 	<update id="insertLikecnt" parameterType="com.solrecipe.recipe.recipegram.domain.RecipegramVO">
 	 
 		UPDATE recipegram_tb SET recipegram_like_cnt =recipegram_like_cnt+1
